@@ -41,16 +41,31 @@ async function runFullPipeline(company: string, query: string, mode: "quick" | "
   if (result?.finalReport || result?.draftReport) {
     const report = result.finalReport || result.draftReport;
     console.log("\n" + "=".repeat(65));
-    console.log("📈 FINAL REPORT");
+    console.log("📈 FINAL REPORT (English)");
     console.log("=".repeat(65));
     console.log(report);
 
-    // Save to file
     const fs = await import("fs");
-    const filename = `output/${company.toLowerCase().replace(/\s+/g, "_")}_report.md`;
+    const slug = company.toLowerCase().replace(/\s+/g, "_");
     fs.mkdirSync("output", { recursive: true });
-    fs.writeFileSync(filename, report);
-    console.log(`\n💾 Report saved to: ${filename}`);
+
+    // Save English version
+    const enFilename = `output/${slug}_report.md`;
+    fs.writeFileSync(enFilename, report);
+    console.log(`\n💾 English report saved to: ${enFilename}`);
+
+    // Generate and save Chinese version
+    console.log("\n🌐 Generating Chinese translation...");
+    try {
+      const { ReportWriterAgent } = await import("./agents/reportWriter.js");
+      const writer = new ReportWriterAgent();
+      const chineseReport = await writer.translate(report);
+      const zhFilename = `output/${slug}_report_zh.md`;
+      fs.writeFileSync(zhFilename, chineseReport);
+      console.log(`💾 Chinese report saved to: ${zhFilename}`);
+    } catch (error) {
+      console.log(`⚠️ Chinese translation failed: ${error}`);
+    }
   } else {
     console.log("⚠️ No final report generated. Check logs above.");
   }

@@ -11,6 +11,9 @@ import { createOpenAI } from "@ai-sdk/openai";
 
 const DEEPSEEK_BASE_URL = process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com/v1";
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY ?? "";
+export function getTodayString(): string {
+  return new Date().toISOString().split("T")[0];
+}
 
 export const LLMConfig = {
   researchModel: process.env.RESEARCH_MODEL ?? "deepseek-chat",

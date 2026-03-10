@@ -14,7 +14,7 @@
  */
 
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import { LLMConfig, AGENT_ROLES, createLLM } from "../config.js";
+import { LLMConfig, AGENT_ROLES, createLLM, getTodayString } from "../config.js";
 import { getSearchTools } from "../tools/searchTools.js";
 import { getFinanceTools } from "../tools/financeTools.js";
 import { getMcpResearchTools, getMcpDeliveryTools } from "../tools/mcpTools.js";
@@ -34,11 +34,16 @@ function createAgent(
   const agent = tools.length > 0 ? llm.bindTools(tools) : llm;
 
   const systemPrompt = new SystemMessage(
-    `You are a ${role.role}.\n\n` +
+    `Today's date: ${getTodayString()}\n\n` +
+      `You are a ${role.role}.\n\n` +
       `Goal: ${role.goal}\n\n` +
       `Background: ${role.backstory}\n\n` +
-      `Always provide specific, data-driven insights. ` +
-      `Cite numbers and sources when available.`
+      `CRITICAL RULES:\n` +
+      `1. ONLY use data returned by your tools. Do NOT fabricate, estimate, or infer data from training knowledge.\n` +
+      `2. If a tool returns no data or fails, explicitly state that the information is unavailable.\n` +
+      `3. When citing numbers, they MUST come from tool results. Never invent financial figures, prices, or statistics.\n` +
+      `4. Always cite the source of your data.\n` +
+      `5. If you lack sufficient data for a section, say so honestly rather than filling it with generic content.`
   );
 
   return { agent, systemPrompt };
