@@ -27,10 +27,12 @@ Planning → Notion Context → Research Crew → Analysis Crew → Risk Crew �
 - **Dynamic Planning** — LLM generates and adapts execution plans at runtime
 - **MCP Integration** — Notion, Gmail, Calendar via Model Context Protocol
 - **Cost Tracking** — per-agent token usage and budget enforcement
+- **Live Data Verification** — real-time Yahoo Finance data appended to reports, superseding any LLM-hallucinated figures
+- **Proxy-Aware Networking** — all HTTP tools auto-detect `https_proxy` / `http_proxy` via undici
 
 ## Tech Stack
 
-TypeScript / LangGraph.js + LangChain.js + Vercel AI SDK + MCP + DeepSeek
+TypeScript / LangGraph.js + LangChain.js + Vercel AI SDK + MCP + DeepSeek + Yahoo Finance API
 
 ## Quick Start
 
@@ -58,14 +60,14 @@ src/
 ├── streaming.ts             # Vercel AI SDK streaming
 ├── types/index.ts           # LangGraph state + domain types
 ├── tools/
-│   ├── searchTools.ts       # Web search (3 tools)
-│   ├── financeTools.ts      # yahoo-finance2 (2 tools)
+│   ├── searchTools.ts       # DuckDuckGo HTML search, proxy-aware (3 tools)
+│   ├── financeTools.ts      # Yahoo Finance API, real-time quotes (2 tools)
 │   └── mcpTools.ts          # Notion/Gmail/Calendar (6 tools)
 ├── crews/index.ts           # 4 crews: Research/Analysis/Risk/Delivery
 ├── graph/
 │   ├── nodes.ts             # 9 LangGraph node functions
 │   └── workflow.ts          # State machine + streaming runner
-├── agents/reportWriter.ts   # Report generation chain
+├── agents/reportWriter.ts   # Report generation + EN→ZH translation
 └── skills/
     ├── reflexion.ts         # Self-reflection engine
     ├── dynamicPlanner.ts    # Adaptive task planning
