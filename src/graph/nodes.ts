@@ -11,6 +11,7 @@ import { ReportWriterAgent } from "../agents/reportWriter.js";
 import { DynamicPlanner } from "../skills/dynamicPlanner.js";
 import { ReflexionEngine } from "../skills/reflexion.js";
 import { notionSearchPastAnalyses } from "../tools/mcpTools.js";
+import { getStockInfo } from "../tools/financeTools.js";
 
 function timestamp(): string {
   return new Date().toLocaleTimeString("en-US", { hour12: false });
@@ -156,15 +157,31 @@ export async function riskNode(state: AgentState): Promise<Partial<AgentState>> 
 export async function reportNode(state: AgentState): Promise<Partial<AgentState>> {
   const iteration = state.iterationCount ?? 0;
 
+  // Fetch real-time financial data directly to prevent LLM hallucination
+  let liveFinancialData = "";
+  try {
+    const ticker = guessTickerFromCompany(state.company);
+    if (ticker) {
+      liveFinancialData = await getStockInfo.invoke({ ticker });
+    }
+  } catch { /* non-fatal */ }
+
   try {
     const agent = new ReportWriterAgent();
     let report: string;
+
+    // Prepend live data to financial analysis so report writer has ground truth
+    const enrichedFinancialAnalysis =
+      (liveFinancialData
+        ? `=== LIVE MARKET DATA (AUTHORITATIVE — use these exact numbers) ===\n${liveFinancialData}\n\n`
+        : "") +
+      (state.financialAnalysis ?? "");
 
     if (iteration === 0 || !state.draftReport) {
       report = await agent.generate({
         company: state.company,
         researchSummary: state.researchSummary ?? "",
-        financialAnalysis: state.financialAnalysis ?? "",
+        financialAnalysis: enrichedFinancialAnalysis,
         marketAnalysis: state.marketAnalysis ?? "",
         techAnalysis: state.techAnalysis ?? "",
         riskAssessment: state.riskAssessment ?? "",
@@ -178,6 +195,11 @@ export async function reportNode(state: AgentState): Promise<Partial<AgentState>
       report = await agent.revise(state.draftReport, feedback, state.company);
     }
 
+    // Post-process: inject verified live data section if available
+    if (liveFinancialData) {
+      report = appendLiveDataSection(report, liveFinancialData);
+    }
+
     return {
       draftReport: report,
       currentPhase: "report_generated",
@@ -189,6 +211,45 @@ export async function reportNode(state: AgentState): Promise<Partial<AgentState>
       errors: [`Report error: ${String(e)}`],
       logs: [`[${timestamp()}] ❌ Report generation failed: ${String(e)}`],
     };
+  }
+}
+
+/** Replace the Key Metrics Dashboard (or append) with verified live data. */
+function appendLiveDataSection(report: string, liveDataJson: string): string {
+  try {
+    const data = JSON.parse(liveDataJson);
+    const ts = data["Data Timestamp"]
+      ? new Date(data["Data Timestamp"]).toISOString().split("T")[0]
+      : new Date().toISOString().split("T")[0];
+
+    const liveSection = `
+## Live Market Data (Verified)
+
+> The following data is fetched in real-time from Yahoo Finance at report generation time and supersedes any conflicting figures in the analysis above.
+
+| Metric | Value |
+| :--- | :--- |
+| **Company** | ${data["Company"] ?? "N/A"} |
+| **Current Price** | $${data["Current Price"] ?? "N/A"} |
+| **Market Cap** | $${data["Market Cap"] ?? "N/A"} |
+| **P/E Ratio (TTM)** | ${data["P/E Ratio (TTM)"] ?? "N/A"} |
+| **Forward P/E** | ${data["Forward P/E"] ?? "N/A"} |
+| **EPS (TTM)** | $${data["EPS (TTM)"] ?? "N/A"} |
+| **Revenue (TTM)** | $${data["Revenue (TTM)"] ?? "N/A"} |
+| **Gross Margin** | ${data["Gross Margin"] ?? "N/A"} |
+| **Profit Margin** | ${data["Profit Margin"] ?? "N/A"} |
+| **ROE** | ${data["ROE"] ?? "N/A"} |
+| **52-Week High** | $${data["52-Week High"] ?? "N/A"} |
+| **52-Week Low** | $${data["52-Week Low"] ?? "N/A"} |
+| **Beta** | ${data["Beta"] ?? "N/A"} |
+| **Dividend Yield** | ${data["Dividend Yield"] ?? "N/A"} |
+
+*Data as of: ${ts}*
+`;
+
+    return report.trimEnd() + "\n\n---\n" + liveSection;
+  } catch {
+    return report;
   }
 }
 
@@ -279,4 +340,25 @@ export async function finalizeNode(state: AgentState): Promise<Partial<AgentStat
     currentPhase: "completed",
     logs: [`[${timestamp()}] 🏁 Workflow completed. Final report ready.`],
   };
+}
+
+// Common company-to-ticker mappings
+const TICKER_MAP: Record<string, string> = {
+  nvidia: "NVDA", apple: "AAPL", google: "GOOGL", alphabet: "GOOGL",
+  microsoft: "MSFT", amazon: "AMZN", meta: "META", facebook: "META",
+  tesla: "TSLA", netflix: "NFLX", amd: "AMD", intel: "INTC",
+  broadcom: "AVGO", tsmc: "TSM", samsung: "005930.KS",
+};
+
+function guessTickerFromCompany(company: string): string | null {
+  const lower = company.toLowerCase().trim();
+  // Direct match in map
+  if (TICKER_MAP[lower]) return TICKER_MAP[lower];
+  // Check if company name contains a known key
+  for (const [key, ticker] of Object.entries(TICKER_MAP)) {
+    if (lower.includes(key)) return ticker;
+  }
+  // If it looks like a ticker already (all caps, short)
+  if (/^[A-Z]{1,5}$/.test(company.trim())) return company.trim();
+  return null;
 }
