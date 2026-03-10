@@ -1,40 +1,69 @@
 /**
  * Search & Web Research Tools
  * =============================
- * LangChain.js tools for web research.
- *
- * Key difference from Python: We use the `tool()` function from
- * @langchain/core/tools with Zod schemas for type-safe input validation.
+ * Uses DuckDuckGo HTML search for real-time web results (free, no API key).
+ * Automatically uses HTTP proxy from environment (https_proxy / http_proxy).
  */
 
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
+import { ProxyAgent, fetch as undiciFetch } from "undici";
+
+function getProxyDispatcher() {
+  const proxy = process.env.https_proxy || process.env.http_proxy || process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+  return proxy ? new ProxyAgent(proxy) : undefined;
+}
+
+async function ddgSearch(query: string, count = 8): Promise<string> {
+  const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+  const dispatcher = getProxyDispatcher();
+  const response = await undiciFetch(url, {
+    dispatcher,
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`DuckDuckGo search failed: ${response.status}`);
+  }
+
+  const html = await response.text();
+
+  // Parse search results from HTML
+  const results: string[] = [];
+  const resultRegex =
+    /<a[^>]+class="result__a"[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+
+  let match;
+  while ((match = resultRegex.exec(html)) !== null && results.length < count) {
+    const rawUrl = match[1];
+    const title = match[2].replace(/<[^>]*>/g, "").trim();
+    const snippet = match[3].replace(/<[^>]*>/g, "").trim();
+
+    // DDG wraps URLs in a redirect; extract the real URL
+    let finalUrl = rawUrl;
+    const uddgMatch = rawUrl.match(/uddg=([^&]+)/);
+    if (uddgMatch) {
+      finalUrl = decodeURIComponent(uddgMatch[1]);
+    }
+
+    if (title && snippet) {
+      results.push(`**${title}**\n${snippet}\nSource: ${finalUrl}`);
+    }
+  }
+
+  return results.join("\n\n");
+}
 
 export const webSearch = tool(
   async ({ query }): Promise<string> => {
     try {
-      // Using DuckDuckGo via fetch (no separate SDK needed in JS)
-      const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`;
-      const response = await fetch(url);
-      const data = await response.json();
-
-      // DuckDuckGo instant answer API
-      const results: string[] = [];
-      if (data.Abstract) {
-        results.push(`**Summary**: ${data.Abstract}\nSource: ${data.AbstractURL}`);
-      }
-      if (data.RelatedTopics) {
-        for (const topic of data.RelatedTopics.slice(0, 6)) {
-          if (topic.Text) {
-            results.push(`• ${topic.Text}`);
-          }
-        }
-      }
-      return results.length > 0
-        ? results.join("\n\n")
-        : `Search results for "${query}" — use the data from your training knowledge.`;
+      const results = await ddgSearch(query);
+      return results || `No search results found for "${query}". Do not fabricate data.`;
     } catch (error) {
-      return `Search completed for "${query}". Proceed with analysis using available knowledge.`;
+      return `Search failed for "${query}". No data is available. Do not fabricate or estimate data.`;
     }
   },
   {
@@ -51,21 +80,14 @@ export const webSearch = tool(
 export const newsSearch = tool(
   async ({ company }): Promise<string> => {
     try {
-      const query = `${company} latest news financial earnings 2025`;
-      const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`;
-      const response = await fetch(url);
-      const data = await response.json();
-
-      const results: string[] = [];
-      if (data.Abstract) results.push(data.Abstract);
-      if (data.RelatedTopics) {
-        for (const topic of data.RelatedTopics.slice(0, 5)) {
-          if (topic.Text) results.push(`• ${topic.Text}`);
-        }
-      }
-      return results.join("\n") || `Recent news search for ${company} completed.`;
+      const query = `${company} latest news financial earnings ${new Date().getFullYear()}`;
+      const results = await ddgSearch(query);
+      return (
+        results ||
+        `No recent news found for ${company}. Do not fabricate news.`
+      );
     } catch {
-      return `News search for ${company} completed.`;
+      return `News search failed for ${company}. No news data is available.`;
     }
   },
   {
@@ -81,12 +103,13 @@ export const competitorSearch = tool(
   async ({ company, industry }): Promise<string> => {
     try {
       const query = `${company} competitors market share ${industry || ""} analysis`;
-      const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data.Abstract || `Competitor research for ${company} completed.`;
+      const results = await ddgSearch(query);
+      return (
+        results ||
+        `No competitor data found for ${company}. Do not invent competitor information.`
+      );
     } catch {
-      return `Competitor search for ${company} completed.`;
+      return `Competitor search failed for ${company}. No data is available.`;
     }
   },
   {
