@@ -139,11 +139,16 @@ export type AgentRole = keyof typeof AGENT_ROLES;
 // ═══════════════════════════════════════════════════════════════
 
 export const WATCHLIST = [
-  { name: "NVIDIA",  ticker: "NVDA" },
-  { name: "Apple",   ticker: "AAPL" },
-  { name: "Google",  ticker: "GOOGL" },
-  { name: "Micron",  ticker: "MU" },
-  { name: "AMD",     ticker: "AMD" },
-  { name: "Amazon",  ticker: "AMZN" },
-  { name: "Alibaba", ticker: "BABA" },
+  // US stocks (美股)
+  { name: "NVIDIA",  ticker: "NVDA",    exchange: "US" as const },
+  { name: "Apple",   ticker: "AAPL",    exchange: "US" as const },
+  { name: "Google",  ticker: "GOOGL",   exchange: "US" as const },
+  { name: "Micron",  ticker: "MU",      exchange: "US" as const },
+  { name: "AMD",     ticker: "AMD",     exchange: "US" as const },
+  { name: "Amazon",  ticker: "AMZN",    exchange: "US" as const },
+  { name: "Alibaba", ticker: "BABA",    exchange: "US" as const },
+  // HK stocks (港股)
+  { name: "Tencent", ticker: "0700.HK", exchange: "HK" as const },
+  { name: "BYD",     ticker: "1211.HK", exchange: "HK" as const },
+  { name: "Xiaomi",  ticker: "1810.HK", exchange: "HK" as const },
 ];

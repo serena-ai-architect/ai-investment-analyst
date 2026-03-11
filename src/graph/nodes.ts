@@ -388,12 +388,24 @@ export async function finalizeNode(state: AgentState): Promise<Partial<AgentStat
 
 // Common company-to-ticker mappings
 const TICKER_MAP: Record<string, string> = {
+  // US stocks
   nvidia: "NVDA", apple: "AAPL", google: "GOOGL", alphabet: "GOOGL",
   microsoft: "MSFT", amazon: "AMZN", meta: "META", facebook: "META",
   tesla: "TSLA", netflix: "NFLX", amd: "AMD", intel: "INTC",
   broadcom: "AVGO", tsmc: "TSM", samsung: "005930.KS",
-  micron: "MU", alibaba: "BABA", "阿里巴巴": "BABA", "美光": "MU",
+  micron: "MU", alibaba: "BABA",
+  // HK stocks (港股)
+  tencent: "0700.HK", meituan: "3690.HK", xiaomi: "1810.HK",
+  byd: "1211.HK", "alibaba hk": "9988.HK", "jd hk": "9618.HK",
+  "netease hk": "9999.HK", "baidu hk": "9888.HK",
+  // A-shares (A股)
+  "kweichow moutai": "600519.SS", "catl": "300750.SZ",
+  // Chinese names → tickers
   "英伟达": "NVDA", "苹果": "AAPL", "谷歌": "GOOGL", "亚马逊": "AMZN",
+  "阿里巴巴": "BABA", "美光": "MU", "特斯拉": "TSLA", "微软": "MSFT",
+  "腾讯": "0700.HK", "美团": "3690.HK", "小米": "1810.HK",
+  "比亚迪": "1211.HK", "京东": "9618.HK", "网易": "9999.HK",
+  "百度": "9888.HK", "贵州茅台": "600519.SS", "宁德时代": "300750.SZ",
 };
 
 function guessTickerFromCompany(company: string): string | null {
