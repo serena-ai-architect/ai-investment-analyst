@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
+import { useLang } from "@/components/providers";
 
 export default function LoginPage() {
+  const { t } = useLang();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -39,9 +41,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">AI Investment Analyst</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("login.title")}</h1>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            10 AI agents. Real-time data. Automated reports.
+            {t("login.subtitle")}
           </p>
         </div>
 
@@ -67,19 +69,19 @@ export default function LoginPage() {
               fill="#EA4335"
             />
           </svg>
-          Continue with Google
+          {t("login.google")}
         </button>
 
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-[var(--border)]" />
-          <span className="text-sm text-[var(--muted-foreground)]">or</span>
+          <span className="text-sm text-[var(--muted-foreground)]">{t("login.or")}</span>
           <div className="h-px flex-1 bg-[var(--border)]" />
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
-            placeholder="you@example.com"
+            placeholder={t("login.emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -90,7 +92,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded-lg bg-[var(--primary)] px-4 py-3 font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? "Sending link..." : "Send Magic Link"}
+            {loading ? t("login.sending") : t("login.sendLink")}
           </button>
         </form>
 

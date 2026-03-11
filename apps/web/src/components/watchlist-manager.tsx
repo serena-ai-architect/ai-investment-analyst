@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-browser";
 import type { WatchlistItem } from "@repo/db";
+import { useLang } from "./providers";
 
 const EXCHANGES = [
   { value: "US", label: "US" },
@@ -12,6 +13,7 @@ const EXCHANGES = [
 ] as const;
 
 export function WatchlistManager({ initialItems }: { initialItems: WatchlistItem[] }) {
+  const { t } = useLang();
   const router = useRouter();
   const [items, setItems] = useState(initialItems);
   const [showAdd, setShowAdd] = useState(false);
@@ -64,7 +66,7 @@ export function WatchlistManager({ initialItems }: { initialItems: WatchlistItem
         onClick={() => setShowAdd(!showAdd)}
         className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
       >
-        {showAdd ? "Cancel" : "+ Add Company"}
+        {showAdd ? t("watchlist.cancel") : t("watchlist.addCompany")}
       </button>
 
       {/* Add form */}
@@ -72,13 +74,13 @@ export function WatchlistManager({ initialItems }: { initialItems: WatchlistItem
         <form onSubmit={handleAdd} className="rounded-lg border border-[var(--border)] bg-[var(--muted)] p-4 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <input
-              placeholder="Company name"
+              placeholder={t("watchlist.companyName")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]"
             />
             <input
-              placeholder="Ticker (e.g. NVDA)"
+              placeholder={t("watchlist.ticker")}
               value={ticker}
               onChange={(e) => setTicker(e.target.value)}
               className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]"
@@ -107,7 +109,7 @@ export function WatchlistManager({ initialItems }: { initialItems: WatchlistItem
               type="submit"
               className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)]"
             >
-              Add
+              {t("watchlist.add")}
             </button>
           </div>
         </form>
@@ -117,7 +119,7 @@ export function WatchlistManager({ initialItems }: { initialItems: WatchlistItem
       <div className="space-y-2">
         {items.length === 0 ? (
           <div className="rounded-lg border border-dashed border-[var(--border)] p-8 text-center text-[var(--muted-foreground)]">
-            No companies in your watchlist yet.
+            {t("watchlist.empty")}
           </div>
         ) : (
           items.map((item) => (
@@ -136,13 +138,13 @@ export function WatchlistManager({ initialItems }: { initialItems: WatchlistItem
                   onClick={() => router.push(`/dashboard?company=${encodeURIComponent(item.company_name)}`)}
                   className="rounded-lg bg-[var(--muted)] px-3 py-1 text-sm transition-colors hover:bg-[var(--border)]"
                 >
-                  Analyze
+                  {t("watchlist.analyze")}
                 </button>
                 <button
                   onClick={() => handleDelete(item.id)}
                   className="rounded-lg px-3 py-1 text-sm text-[var(--destructive)] transition-colors hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
-                  Remove
+                  {t("watchlist.remove")}
                 </button>
               </div>
             </div>

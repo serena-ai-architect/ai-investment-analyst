@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase-browser";
 import type { Profile } from "@repo/db";
+import { useLang } from "./providers";
 
 export function SettingsForm({ profile }: { profile: Profile }) {
+  const { t } = useLang();
   const [locale, setLocale] = useState(profile.locale);
   const [currency, setCurrency] = useState(profile.currency);
   const [emailReports, setEmailReports] = useState(profile.email_reports_enabled);
@@ -37,24 +39,24 @@ export function SettingsForm({ profile }: { profile: Profile }) {
     <div className="space-y-8">
       {/* Profile */}
       <section className="rounded-lg border border-[var(--border)] p-6 space-y-4">
-        <h3 className="font-semibold">Profile</h3>
+        <h3 className="font-semibold">{t("settings.profile")}</h3>
         <div>
-          <label className="text-sm text-[var(--muted-foreground)]">Email</label>
+          <label className="text-sm text-[var(--muted-foreground)]">{t("settings.email")}</label>
           <p className="font-medium">{profile.email}</p>
         </div>
         <div>
-          <label className="text-sm text-[var(--muted-foreground)]">Plan</label>
+          <label className="text-sm text-[var(--muted-foreground)]">{t("settings.plan")}</label>
           <p className="font-medium capitalize">{profile.tier}</p>
         </div>
       </section>
 
       {/* Preferences */}
       <section className="rounded-lg border border-[var(--border)] p-6 space-y-4">
-        <h3 className="font-semibold">Preferences</h3>
+        <h3 className="font-semibold">{t("settings.preferences")}</h3>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Language</label>
+            <label className="mb-1 block text-sm font-medium">{t("settings.language")}</label>
             <select
               value={locale}
               onChange={(e) => setLocale(e.target.value as Profile["locale"])}
@@ -66,7 +68,7 @@ export function SettingsForm({ profile }: { profile: Profile }) {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Currency</label>
+            <label className="mb-1 block text-sm font-medium">{t("settings.currency")}</label>
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value as Profile["currency"])}
@@ -88,7 +90,7 @@ export function SettingsForm({ profile }: { profile: Profile }) {
             className="h-4 w-4 rounded border-[var(--border)]"
           />
           <label htmlFor="emailReports" className="text-sm">
-            Email me when reports are ready
+            {t("settings.emailReports")}
           </label>
         </div>
 
@@ -97,7 +99,7 @@ export function SettingsForm({ profile }: { profile: Profile }) {
           disabled={saving}
           className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
+          {saving ? t("settings.saving") : saved ? t("settings.saved") : t("settings.save")}
         </button>
       </section>
 
@@ -107,7 +109,7 @@ export function SettingsForm({ profile }: { profile: Profile }) {
           onClick={handleSignOut}
           className="text-sm text-[var(--destructive)] hover:underline"
         >
-          Sign Out
+          {t("settings.signOut")}
         </button>
       </section>
     </div>

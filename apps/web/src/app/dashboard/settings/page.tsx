@@ -1,4 +1,5 @@
 import { safeQuery, isSupabaseConfigured, createClient } from "@/lib/supabase-server";
+import { PageHeader } from "@/components/page-header";
 import { SettingsForm } from "@/components/settings-form";
 import type { Profile } from "@repo/db";
 
@@ -37,10 +38,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Settings</h2>
-        <p className="text-[var(--muted-foreground)]">Manage your preferences</p>
-      </div>
+      <PageHeader titleKey="settings.title" descriptionKey="settings.description" />
       <SettingsForm profile={profile} />
     </div>
   );

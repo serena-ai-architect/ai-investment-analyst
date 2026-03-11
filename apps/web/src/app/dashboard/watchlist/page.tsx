@@ -1,4 +1,5 @@
 import { safeQuery } from "@/lib/supabase-server";
+import { PageHeader } from "@/components/page-header";
 import { WatchlistManager } from "@/components/watchlist-manager";
 import type { WatchlistItem } from "@repo/db";
 
@@ -9,12 +10,7 @@ export default async function WatchlistPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Watchlist</h2>
-        <p className="text-[var(--muted-foreground)]">
-          Manage the companies you track for regular analysis
-        </p>
-      </div>
+      <PageHeader titleKey="watchlist.title" descriptionKey="watchlist.description" />
       <WatchlistManager initialItems={items ?? []} />
     </div>
   );

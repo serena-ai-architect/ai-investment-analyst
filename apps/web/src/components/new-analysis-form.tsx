@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLang } from "./providers";
 
 const POPULAR_TICKERS = [
   { name: "NVIDIA", ticker: "NVDA", exchange: "US" },
@@ -15,6 +16,7 @@ const POPULAR_TICKERS = [
 ];
 
 export function NewAnalysisForm() {
+  const { t } = useLang();
   const router = useRouter();
   const [company, setCompany] = useState("");
   const [mode, setMode] = useState<"quick" | "full">("full");
@@ -46,24 +48,24 @@ export function NewAnalysisForm() {
     <div className="rounded-lg border border-[var(--border)] bg-[var(--muted)] p-6">
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:flex-row sm:items-end">
         <div className="flex-1">
-          <label className="mb-1 block text-sm font-medium">Company Name</label>
+          <label className="mb-1 block text-sm font-medium">{t("form.companyName")}</label>
           <input
             type="text"
-            placeholder="e.g., NVIDIA, Apple, Tencent..."
+            placeholder={t("form.companyPlaceholder")}
             value={company}
             onChange={(e) => setCompany(e.target.value)}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 outline-none transition-colors focus:border-[var(--primary)]"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Mode</label>
+          <label className="mb-1 block text-sm font-medium">{t("form.mode")}</label>
           <select
             value={mode}
             onChange={(e) => setMode(e.target.value as "quick" | "full")}
             className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 outline-none"
           >
-            <option value="full">Full Analysis</option>
-            <option value="quick">Quick (skip risk)</option>
+            <option value="full">{t("form.modeFull")}</option>
+            <option value="quick">{t("form.modeQuick")}</option>
           </select>
         </div>
         <button
@@ -71,7 +73,7 @@ export function NewAnalysisForm() {
           disabled={loading || !company.trim()}
           className="rounded-lg bg-[var(--primary)] px-6 py-2.5 font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {loading ? "Starting..." : "Analyze"}
+          {loading ? t("form.starting") : t("form.analyze")}
         </button>
       </form>
 
