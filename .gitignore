@@ -1,6 +1,10 @@
 node_modules/
 dist/
 .env
+.env.local
 .claude/
 project-doc.md
 interview-talking-points.md
+.next/
+.turbo/
+*.tsbuildinfo

@@ -1,12 +1,13 @@
 # AI Investment Analyst
 
-A multi-agent system that automates end-to-end investment research — 10 specialized agents across 4 crews, orchestrated by a LangGraph.js state machine with Reflexion-based self-improvement and real-time market data.
+Multi-agent investment research platform — 10 specialized agents across 4 crews, orchestrated by LangGraph.js with Reflexion self-improvement, real-time market data, and a Next.js web dashboard.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js_15-000000?logo=next.js&logoColor=white)
 ![LangGraph.js](https://img.shields.io/badge/LangGraph.js-1C3C3C?logo=langchain&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?logo=supabase&logoColor=white)
 ![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-000000?logo=vercel&logoColor=white)
-![MCP](https://img.shields.io/badge/MCP-Protocol-8A2BE2)
-![DeepSeek](https://img.shields.io/badge/DeepSeek-4D6CFA?logo=deepseek&logoColor=white)
+![Turborepo](https://img.shields.io/badge/Turborepo-EF4444?logo=turborepo&logoColor=white)
 
 ## Architecture
 
@@ -32,59 +33,62 @@ graph TD
 ## Technical Highlights
 
 **Agent Patterns**
-- **Reflexion** — structured self-improvement with memory across retries; evaluator uses 5-dimension rubric (completeness, data quality, analytical depth, actionability, writing), reflector generates root-cause analysis + specific action items carried forward to next attempt
-- **Process Reward Model** — step-level quality scoring (not just final output), each dimension scored independently to pinpoint weaknesses
-- **Dynamic Planning** — LLM generates execution plans at runtime, adapting research focus based on company and query context
+- **Reflexion** — structured self-improvement with memory across retries; 5-dimension rubric evaluation with root-cause analysis + action items carried forward to next attempt
+- **Process Reward Model** — step-level quality scoring, each dimension scored independently to pinpoint weaknesses
+- **Dynamic Planning** — LLM generates execution plans at runtime, adapting research focus per company
 
 **Engineering**
+- **Turborepo Monorepo** — shared `@repo/core` analysis engine used by both CLI and web dashboard
+- **Next.js 15 Dashboard** — mobile-responsive UI with Supabase Auth, real-time report viewer, watchlist management
 - **Live Data Verification** — real-time Yahoo Finance data appended as verified appendix, superseding any LLM-hallucinated figures
-- **Parallel Execution** — Analysis crew runs 3 specialists concurrently via `Promise.all`, cutting latency by ~3x
-- **Notion + Email Delivery** — reports auto-saved to Notion database and emailed with executive summary; direct API integration (no LLM needed for delivery) with graceful fallback when unconfigured
-- **Cost Controls** — per-agent token tracking with budget enforcement; cost summary included in final output
-- **Type Safety** — full TypeScript with LangGraph `Annotation` API for compile-time state validation
-
-## Agents & Crews
-
-| Crew | Agents | Mode | Tools |
-|------|--------|------|-------|
-| **Research** | Web Researcher, Data Collector, Synthesizer | Sequential | `web_search`, `news_search`, `competitor_search`, `get_stock_info`, `get_financial_history`, `notion_search_past_analyses` |
-| **Analysis** | Financial Analyst, Market Analyst, Tech Analyst | Parallel | `get_stock_info`, `get_financial_history`, `web_search`, `news_search`, `competitor_search` |
-| **Risk** | Risk Analyst, Compliance Analyst | Sequential | `web_search`, `news_search`, `competitor_search` |
-| **Delivery** | Knowledge Manager, Distribution Coordinator | Sequential | `notion_save_analysis`, `gmail_send_report`, `gmail_search_newsletters`, `calendar_schedule_review`, `calendar_set_followup` |
+- **Parallel Execution** — Analysis crew runs 3 specialists concurrently via `Promise.all`, cutting latency ~3x
+- **Pluggable Delivery** — web dashboard (primary), email, Notion, PDF export — all channels are optional
+- **Multi-Market** — US stocks, HK stocks (.HK), A-shares (.SS/.SZ)
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Orchestration | LangGraph.js (state machine, conditional edges, checkpointer) |
-| Agents | LangChain.js (tool-augmented LLM agents) |
-| Streaming | Vercel AI SDK |
-| LLM | DeepSeek (chat + reasoner models) |
-| Finance Data | Yahoo Finance Chart API (real-time quotes, historical data) |
-| Delivery | Notion API (`@notionhq/client`), Nodemailer (SMTP/Gmail) |
-| External Services | Model Context Protocol — Notion, Gmail, Calendar |
-| Runtime | TypeScript, Node.js |
+| **Frontend** | Next.js 15 (App Router), Tailwind CSS, react-markdown |
+| **Auth + DB** | Supabase (Postgres + Auth + RLS + Realtime) |
+| **Orchestration** | LangGraph.js (state machine, conditional edges, checkpointer) |
+| **Agents** | LangChain.js (tool-augmented LLM agents) |
+| **Streaming** | Vercel AI SDK |
+| **LLM** | DeepSeek-V3 (~$0.025/report) |
+| **Finance Data** | Yahoo Finance Chart API (real-time quotes, historical data) |
+| **Delivery** | Notion API, Nodemailer, web dashboard |
+| **Monorepo** | Turborepo (npm workspaces) |
 
 ## Quick Start
 
 ```bash
 npm install
 
-# Demo mode (no API key needed)
-npx tsx src/main.ts --demo
+# ── Web Dashboard ──────────────────────────────────
+npm run dev:web         # http://localhost:3000
 
-# Full pipeline
-cp .env.example .env
-# Add your DEEPSEEK_API_KEY to .env
-npx tsx src/main.ts --company "NVIDIA" --mode full
+# ── CLI ────────────────────────────────────────────
+npm run demo            # Architecture showcase (no API keys)
 
-# Quick mode (skips risk assessment)
-npx tsx src/main.ts --company "Apple" --mode quick
+cp .env.example .env    # Add DEEPSEEK_API_KEY
+npm run start -- --company "NVIDIA" --mode full
+npm run start -- --company "Apple" --mode quick
 
-# Watchlist mode — analyze all 7 tracked companies
-# (NVIDIA, Apple, Google, Micron, AMD, Amazon, Alibaba)
-npm run watchlist             # full analysis
-npm run watchlist:quick       # quick mode
+# Watchlist — analyze all 10 tracked companies
+npm run watchlist       # full analysis
+npm run watchlist:quick # quick mode
+```
+
+### Supabase Setup (for web dashboard)
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Run `packages/db/src/schema.sql` in Supabase SQL Editor
+3. Create `apps/web/.env.local`:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+DEEPSEEK_API_KEY=your-deepseek-key
 ```
 
 ### Notion + Email Setup (Optional)
@@ -92,11 +96,8 @@ npm run watchlist:quick       # quick mode
 Add to `.env` to enable auto-delivery:
 
 ```bash
-# Reports auto-saved to Notion database
 NOTION_API_KEY=ntn_xxx
 NOTION_DATABASE_ID=xxx
-
-# Email notification with executive summary + report attachment
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=465
 SMTP_USER=you@gmail.com
@@ -104,49 +105,36 @@ SMTP_PASS=your-gmail-app-password
 EMAIL_TO=you@gmail.com
 ```
 
-When configured, each report is automatically saved to Notion and emailed after generation. When not configured, delivery is gracefully skipped — reports are still generated and saved locally.
+## Agents & Crews
+
+| Crew | Agents | Mode | Tools |
+|------|--------|------|-------|
+| **Research** | Web Researcher, Data Collector, Synthesizer | Sequential | `web_search`, `news_search`, `competitor_search`, `get_stock_info`, `get_financial_history` |
+| **Analysis** | Financial Analyst, Market Analyst, Tech Analyst | Parallel | `get_stock_info`, `get_financial_history`, `web_search`, `news_search` |
+| **Risk** | Risk Analyst, Compliance Analyst | Sequential | `web_search`, `news_search`, `competitor_search` |
+| **Delivery** | Knowledge Manager, Distribution Coordinator | Sequential | `notion_save_analysis`, `gmail_send_report` |
 
 ## Example: AMD Analysis (Live Run)
 
-Full pipeline execution — planning, 10-agent research, Reflexion self-improvement loop, real-time Yahoo Finance data, Notion + email delivery.
-
-### Pipeline Execution
+Full pipeline — planning, 10-agent research, Reflexion self-improvement loop, real-time Yahoo Finance data, Notion + email delivery.
 
 ```
-🎯 Target: AMD
-📋 Query: Comprehensive investment analysis of AMD
-⚙️  Mode: full
-⏱️  Started: 2026-03-11T08:17:25Z
+Target: AMD
+Mode: full
+Started: 2026-03-11T08:17:25Z
 -----------------------------------------------------------------
-  [16:17:42] 📋 Dynamic plan created: 9 tasks
-  📍 Phase: planned
-  [16:17:42] 📚 Historical context loaded from Notion
-  📍 Phase: context_loaded
-  [16:18:22] ✅ Research crew completed for AMD
-  📍 Phase: research_complete
-  [16:18:25] ✅ Analysis crew completed (3 analysts ran in parallel)
-  📍 Phase: analysis_complete
-  [16:18:31] ✅ Risk crew completed (score: 5)
-  📍 Phase: risk_complete
-  [16:19:11] ✅ Report generated (iteration 1)
-  [16:19:38] 🪞 Reflexion: score=5/10 (attempt 1), retry=true, actions=5
-  [16:20:41] ✅ Report generated (iteration 2)
-  [16:21:05] 🪞 Reflexion: score=5/10 (attempt 2), retry=true, actions=5
-  [16:22:06] ✅ Report generated (iteration 3)
-  [16:22:33] 🪞 Reflexion: score=4/10 (attempt 3), retry=false, actions=5
-  📍 Phase: reflexion_complete
-  [16:22:44] 📨 Delivery complete:
-    📝 Notion: ✅ saved → notion.so/320c0dfa43c981cf8bf0ee63ebcff605
-    📧 Email: ✅ sent
-  📍 Phase: delivered
-  [16:22:44] 🏁 Workflow completed. Final report ready.
-💾 English report saved to: output/amd_report.md
-💾 Chinese report saved to: output/amd_report_zh.md
+  [16:17:42] Dynamic plan created: 9 tasks
+  [16:18:22] Research crew completed for AMD
+  [16:18:25] Analysis crew completed (3 analysts ran in parallel)
+  [16:18:31] Risk crew completed (score: 5)
+  [16:19:11] Report generated (iteration 1)
+  [16:19:38] Reflexion: score=5/10 (attempt 1), retry=true
+  [16:20:41] Report generated (iteration 2)
+  [16:21:05] Reflexion: score=5/10 (attempt 2), retry=true
+  [16:22:06] Report generated (iteration 3)
+  [16:22:44] Delivery: Notion saved, Email sent
+  [16:22:44] Workflow completed. Final report ready.
 ```
-
-### Report Output (Verified Live Data)
-
-The system fetches real-time data from Yahoo Finance and appends it as a verified appendix, superseding any LLM-generated figures:
 
 | Metric | Value |
 |--------|-------|
@@ -154,49 +142,47 @@ The system fetches real-time data from Yahoo Finance and appends it as a verifie
 | **Current Price** | $203.23 |
 | **Market Cap** | $331.35B |
 | **P/E Ratio (TTM)** | 78.17 |
-| **Forward P/E** | 18.67 |
-| **EPS (TTM)** | $2.60 |
 | **Revenue (TTM)** | $34.64B |
 | **Gross Margin** | 52.49% |
-| **Profit Margin** | 12.52% |
-| **52-Week Range** | $76.48 — $267.08 |
 | **Risk Score** | 5/10 |
 | **Recommendation** | HOLD |
 
-*Data as of: 2026-03-11. Full reports: [English](output/amd_report.md) · [中文](output/amd_report_zh.md)*
-
-### Delivery
-
-Reports are automatically delivered to configured destinations after generation:
-
-- **Notion** — full report saved as a rich page in Knowledge Database with structured sections, tables, and live data
-- **Email** — HTML notification with executive summary, key metrics table, and risk assessment sent to configured recipients
-
-> **Watchlist mode**: `npm run watchlist` analyzes all tracked companies (NVIDIA, Apple, Google, Micron, AMD, Amazon, Alibaba) in sequence, delivering each report to Notion + email as it completes.
+*Full reports: [English](output/amd_report.md) · [中文](output/amd_report_zh.md)*
 
 ## Project Structure
 
 ```
-src/
-├── main.ts                  # CLI entry point
-├── config.ts                # Model & workflow config
-├── streaming.ts             # Vercel AI SDK streaming
-├── types/index.ts           # LangGraph state + domain types
-├── integrations/
-│   ├── notionClient.ts      # Notion API — save reports as pages
-│   └── emailClient.ts       # SMTP email — report notifications
-├── tools/
-│   ├── searchTools.ts       # DuckDuckGo HTML search, proxy-aware (3 tools)
-│   ├── financeTools.ts      # Yahoo Finance API, real-time quotes (2 tools)
-│   └── mcpTools.ts          # Notion/Gmail/Calendar (6 tools, real-or-stub)
-├── crews/index.ts           # 4 crews: Research/Analysis/Risk/Delivery
-├── graph/
-│   ├── nodes.ts             # 9 LangGraph node functions
-│   └── workflow.ts          # State machine + streaming runner
-├── agents/reportWriter.ts   # Report generation + EN→ZH translation
-└── skills/
-    ├── reflexion.ts         # Self-reflection engine
-    ├── dynamicPlanner.ts    # Adaptive task planning
-    ├── processReward.ts     # Step-level evaluation (PRM)
-    └── costTracker.ts       # Token economics & budget
+ai-investment-analyst/
+├── turbo.json                      # Turborepo config
+├── package.json                    # Workspace root
+├── packages/
+│   ├── core/                       # Analysis engine (@repo/core)
+│   │   └── src/
+│   │       ├── engine.ts           # Main entry: runAnalysis()
+│   │       ├── config.ts           # LLM & workflow config
+│   │       ├── graph/              # LangGraph workflow + nodes
+│   │       ├── crews/              # 4 crews: Research/Analysis/Risk/Delivery
+│   │       ├── agents/             # ReportWriter (EN + ZH)
+│   │       ├── skills/             # Reflexion, PRM, Planner, CostTracker
+│   │       ├── tools/              # Search, Finance, MCP tools
+│   │       └── integrations/       # Notion API, email (SMTP)
+│   └── db/                         # Database layer (@repo/db)
+│       └── src/
+│           ├── schema.sql          # Supabase schema (RLS enabled)
+│           └── types.ts            # TypeScript DB types
+├── apps/
+│   ├── web/                        # Next.js 15 Dashboard (@repo/web)
+│   │   └── src/
+│   │       ├── app/
+│   │       │   ├── dashboard/      # Main dashboard, reports, watchlist, settings
+│   │       │   ├── (auth)/         # Login (Google OAuth + Magic Link)
+│   │       │   └── api/analyze/    # Analysis trigger endpoint
+│   │       ├── components/         # ReportViewer, WatchlistManager, etc.
+│   │       ├── lib/                # Supabase client helpers
+│   │       └── middleware.ts       # Auth guard
+│   └── cli/                        # CLI tool (@repo/cli)
+│       └── src/main.ts             # CLI entry point
+├── docs/
+│   └── saas-architecture.md        # SaaS architecture plan (EN + ZH)
+└── output/                         # Generated reports (*.md)
 ```

@@ -1,0 +1,23 @@
+{
+  "name": "@repo/cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "demo": "tsx src/main.ts --demo",
+    "watchlist": "tsx src/main.ts --watchlist --mode full",
+    "watchlist:quick": "tsx src/main.ts --watchlist --mode quick",
+    "dev": "tsx watch src/main.ts"
+  },
+  "dependencies": {
+    "@repo/core": "*",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

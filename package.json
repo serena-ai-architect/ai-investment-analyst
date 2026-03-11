@@ -1,41 +1,30 @@
 {
-  "name": "multi-agent-research-system",
+  "name": "ai-investment-analyst",
   "version": "2.0.0",
-  "description": "Production-grade multi-agent system — LangGraph.js + LangChain.js + Vercel AI SDK + MCP",
-  "type": "module",
-  "main": "dist/main.js",
+  "private": true,
+  "description": "AI-powered investment research platform — multi-agent analysis engine + web dashboard",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "build": "tsc",
-    "start": "tsx src/main.ts",
-    "start:v2": "tsx src/main.ts --v2",
-    "demo": "tsx src/main.ts --demo",
-    "watchlist": "tsx src/main.ts --watchlist --mode full",
-    "watchlist:quick": "tsx src/main.ts --watchlist --mode quick",
-    "dev": "tsx watch src/main.ts"
-  },
-  "dependencies": {
-    "@ai-sdk/openai": "^1.1.0",
-    "@langchain/community": "^0.3.20",
-    "@langchain/core": "^0.3.30",
-    "@langchain/langgraph": "^0.2.40",
-    "@langchain/openai": "^0.3.17",
-    "@modelcontextprotocol/sdk": "^1.3.0",
-    "@notionhq/client": "^2.3.0",
-    "ai": "^4.1.0",
-    "chalk": "^5.3.0",
-    "commander": "^12.1.0",
-    "dotenv": "^16.4.7",
-    "nodemailer": "^8.0.2",
-    "undici": "^7.22.0",
-    "zod": "^3.24.0"
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "dev:web": "turbo dev --filter=@repo/web",
+    "dev:cli": "turbo dev --filter=@repo/cli",
+    "start": "npm run -w @repo/cli start",
+    "demo": "npm run -w @repo/cli demo",
+    "watchlist": "npm run -w @repo/cli watchlist",
+    "watchlist:quick": "npm run -w @repo/cli watchlist:quick",
+    "type-check": "turbo type-check",
+    "lint": "turbo lint"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "@types/nodemailer": "^7.0.11",
-    "tsx": "^4.19.0",
+    "turbo": "^2.4.0",
     "typescript": "^5.7.0"
   },
   "engines": {
     "node": ">=20.0.0"
-  }
+  },
+  "packageManager": "npm@10.0.0"
 }
