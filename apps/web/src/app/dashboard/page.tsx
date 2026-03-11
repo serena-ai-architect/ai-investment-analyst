@@ -1,5 +1,6 @@
 import { safeQuery, isSupabaseConfigured, createClient } from "@/lib/supabase-server";
 import { DashboardContent } from "@/components/dashboard-content";
+import { DEMO_REPORTS, DEMO_USAGE } from "@/lib/demo-data";
 import type { Report, Usage } from "@repo/db";
 
 export default async function DashboardPage() {
@@ -24,6 +25,10 @@ export default async function DashboardPage() {
       sb.from("usage").select("*").eq("period_start", periodStart).single()
     );
   }
+
+  // Fall back to demo data
+  if (!reports) reports = DEMO_REPORTS;
+  if (!usage) usage = DEMO_USAGE;
 
   return <DashboardContent userName={userName} reports={reports} usage={usage} />;
 }

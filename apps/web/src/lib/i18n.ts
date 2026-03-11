@@ -25,10 +25,12 @@ export const translations = {
     "form.modeQuick": "Quick (skip risk)",
     "form.analyze": "Analyze",
     "form.starting": "Starting...",
+    "form.analyzing": "Analyzing...",
+    "form.demoNote": "Demo mode — viewing sample report",
     // Watchlist
     "watchlist.title": "Watchlist",
     "watchlist.description": "Manage the companies you track for regular analysis",
-    "watchlist.addCompany": "+ Add Company",
+    "watchlist.addCompany": "Add Company",
     "watchlist.cancel": "Cancel",
     "watchlist.empty": "No companies in your watchlist yet.",
     "watchlist.companyName": "Company name",
@@ -36,6 +38,16 @@ export const translations = {
     "watchlist.add": "Add",
     "watchlist.analyze": "Analyze",
     "watchlist.remove": "Remove",
+    "watchlist.schedule": "Schedule",
+    "watchlist.exchange": "Exchange",
+    // Exchange labels
+    "exchange.US": "US",
+    "exchange.HK": "HK",
+    "exchange.CN": "A-shares",
+    // Schedule labels
+    "schedule.manual": "Manual",
+    "schedule.weekly": "Weekly",
+    "schedule.daily": "Daily",
     // Reports
     "reports.title": "Reports",
     "reports.description": "All your investment analysis reports",
@@ -43,8 +55,9 @@ export const translations = {
     "reports.goToDashboard": "Go to the dashboard to run your first analysis.",
     "reports.quality": "Quality",
     "reports.risk": "Risk",
-    "reports.inProgress": "Analysis in progress... Phase",
+    "reports.inProgress": "Analysis in progress — Phase",
     "reports.failed": "Analysis failed",
+    "reports.recommendation": "Recommendation",
     // Settings
     "settings.title": "Settings",
     "settings.description": "Manage your preferences",
@@ -61,7 +74,7 @@ export const translations = {
     "settings.signOut": "Sign Out",
     // Status
     "status.pending": "Pending",
-    "status.running": "Running...",
+    "status.running": "Running",
     "status.completed": "Completed",
     "status.failed": "Failed",
     // Theme
@@ -76,6 +89,10 @@ export const translations = {
     "login.emailPlaceholder": "you@example.com",
     "login.sendLink": "Send Magic Link",
     "login.sending": "Sending link...",
+    // Common
+    "common.demo": "Demo Mode",
+    "common.viewReport": "View Report",
+    "common.back": "Back",
   },
   zh: {
     // Nav
@@ -101,10 +118,12 @@ export const translations = {
     "form.modeQuick": "快速（跳过风控）",
     "form.analyze": "开始分析",
     "form.starting": "启动中...",
+    "form.analyzing": "分析中...",
+    "form.demoNote": "演示模式 — 查看示例报告",
     // Watchlist
     "watchlist.title": "关注列表",
     "watchlist.description": "管理你定期跟踪分析的公司",
-    "watchlist.addCompany": "+ 添加公司",
+    "watchlist.addCompany": "添加公司",
     "watchlist.cancel": "取消",
     "watchlist.empty": "关注列表为空",
     "watchlist.companyName": "公司名称",
@@ -112,6 +131,16 @@ export const translations = {
     "watchlist.add": "添加",
     "watchlist.analyze": "分析",
     "watchlist.remove": "删除",
+    "watchlist.schedule": "频率",
+    "watchlist.exchange": "交易所",
+    // Exchange labels
+    "exchange.US": "美股",
+    "exchange.HK": "港股",
+    "exchange.CN": "A股",
+    // Schedule labels
+    "schedule.manual": "手动",
+    "schedule.weekly": "每周",
+    "schedule.daily": "每天",
     // Reports
     "reports.title": "研究报告",
     "reports.description": "所有投资分析报告",
@@ -119,8 +148,9 @@ export const translations = {
     "reports.goToDashboard": "前往仪表板开始你的第一次分析",
     "reports.quality": "质量",
     "reports.risk": "风险",
-    "reports.inProgress": "分析进行中... 阶段",
+    "reports.inProgress": "分析进行中 — 阶段",
     "reports.failed": "分析失败",
+    "reports.recommendation": "投资建议",
     // Settings
     "settings.title": "设置",
     "settings.description": "管理你的偏好",
@@ -137,7 +167,7 @@ export const translations = {
     "settings.signOut": "退出登录",
     // Status
     "status.pending": "等待中",
-    "status.running": "运行中...",
+    "status.running": "运行中",
     "status.completed": "已完成",
     "status.failed": "失败",
     // Theme
@@ -152,6 +182,10 @@ export const translations = {
     "login.emailPlaceholder": "you@example.com",
     "login.sendLink": "发送登录链接",
     "login.sending": "发送中...",
+    // Common
+    "common.demo": "演示模式",
+    "common.viewReport": "查看报告",
+    "common.back": "返回",
   },
 } as const;
 

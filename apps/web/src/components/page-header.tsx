@@ -7,8 +7,8 @@ export function PageHeader({ titleKey, descriptionKey }: { titleKey: Translation
   const { t } = useLang();
   return (
     <div>
-      <h2 className="text-2xl font-bold">{t(titleKey)}</h2>
-      <p className="text-[var(--muted-foreground)]">{t(descriptionKey)}</p>
+      <h2 className="text-2xl font-bold tracking-tight">{t(titleKey)}</h2>
+      <p className="mt-1 text-[var(--muted-foreground)]">{t(descriptionKey)}</p>
     </div>
   );
 }
