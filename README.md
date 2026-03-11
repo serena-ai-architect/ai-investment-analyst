@@ -1,38 +1,68 @@
 # AI Investment Analyst
 
-A production-grade multi-agent system that automates investment research — from data collection to report delivery.
+A multi-agent system that automates end-to-end investment research — 10 specialized agents across 4 crews, orchestrated by a LangGraph.js state machine with Reflexion-based self-improvement and real-time market data.
 
-10 specialized AI agents organized in 4 crews collaborate through a LangGraph.js state machine to produce comprehensive investment analysis reports.
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![LangGraph.js](https://img.shields.io/badge/LangGraph.js-1C3C3C?logo=langchain&logoColor=white)
+![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-000000?logo=vercel&logoColor=white)
+![MCP](https://img.shields.io/badge/MCP-Protocol-8A2BE2)
+![DeepSeek](https://img.shields.io/badge/DeepSeek-4D6CFA?logo=deepseek&logoColor=white)
 
 ## Architecture
 
+```mermaid
+graph TD
+    START([START]) --> planning[Planning<br/><i>Dynamic task generation</i>]
+    planning --> notionContext[Notion Context<br/><i>Retrieve past analyses via MCP</i>]
+    notionContext --> research[Research Crew<br/><i>3 agents · sequential</i>]
+    research --> analysis[Analysis Crew<br/><i>3 agents · parallel via Promise.all</i>]
+
+    analysis -->|"mode = full"| risk[Risk Crew<br/><i>2 agents · sequential</i>]
+    analysis -->|"mode = quick"| report[Report Generation<br/><i>EN + ZH translation</i>]
+    risk --> report
+
+    report --> reflexion{Reflexion<br/><i>Score ≥ 7/10?</i>}
+    reflexion -->|"score < 7 AND retries < 3"| report
+    reflexion -->|"score ≥ 7 OR max retries"| delivery[Delivery Crew<br/><i>2 agents · MCP</i>]
+
+    delivery --> finalize[Finalize<br/><i>Save report + cost summary</i>]
+    finalize --> END([END])
 ```
-Planning → Notion Context → Research Crew → Analysis Crew → Risk Crew → Report → Reflexion → Delivery
-                              (3 agents)     (3 in parallel)  (2 agents)           (self-improve)  (Notion/Gmail/Calendar)
-```
 
-### Agents & Crews
+## Technical Highlights
 
-| Crew | Agents | Mode |
-|------|--------|------|
-| **Research** | Web Researcher, Data Collector, Synthesizer | Sequential |
-| **Analysis** | Financial Analyst, Market Analyst, Tech Analyst | Parallel (`Promise.all`) |
-| **Risk** | Risk Analyst, Compliance Analyst | Sequential |
-| **Delivery** | Knowledge Manager, Distribution Coordinator | Sequential (MCP) |
+**Agent Patterns**
+- **Reflexion** — structured self-improvement with memory across retries; evaluator uses 5-dimension rubric (completeness, data quality, analytical depth, actionability, writing), reflector generates root-cause analysis + specific action items carried forward to next attempt
+- **Process Reward Model** — step-level quality scoring (not just final output), each dimension scored independently to pinpoint weaknesses
+- **Dynamic Planning** — LLM generates execution plans at runtime, adapting research focus based on company and query context
 
-### Key Design Patterns
+**Engineering**
+- **Live Data Verification** — real-time Yahoo Finance data appended as verified appendix, superseding any LLM-hallucinated figures
+- **Parallel Execution** — Analysis crew runs 3 specialists concurrently via `Promise.all`, cutting latency by ~3x
+- **MCP Integration** — Notion (knowledge base), Gmail (distribution), Calendar (follow-ups) connected via Model Context Protocol
+- **Cost Controls** — per-agent token tracking with budget enforcement; cost summary included in final output
+- **Type Safety** — full TypeScript with LangGraph `Annotation` API for compile-time state validation
 
-- **Reflexion** — structured self-improvement with memory across retries (Shinn et al., 2023)
-- **Process Reward Model** — step-level quality evaluation, not just final output (Lightman et al., 2023)
-- **Dynamic Planning** — LLM generates and adapts execution plans at runtime
-- **MCP Integration** — Notion, Gmail, Calendar via Model Context Protocol
-- **Cost Tracking** — per-agent token usage and budget enforcement
-- **Live Data Verification** — real-time Yahoo Finance data appended to reports, superseding any LLM-hallucinated figures
-- **Proxy-Aware Networking** — all HTTP tools auto-detect `https_proxy` / `http_proxy` via undici
+## Agents & Crews
+
+| Crew | Agents | Mode | Tools |
+|------|--------|------|-------|
+| **Research** | Web Researcher, Data Collector, Synthesizer | Sequential | `web_search`, `news_search`, `competitor_search`, `get_stock_info`, `get_financial_history`, `notion_search_past_analyses` |
+| **Analysis** | Financial Analyst, Market Analyst, Tech Analyst | Parallel | `get_stock_info`, `get_financial_history`, `web_search`, `news_search`, `competitor_search` |
+| **Risk** | Risk Analyst, Compliance Analyst | Sequential | `web_search`, `news_search`, `competitor_search` |
+| **Delivery** | Knowledge Manager, Distribution Coordinator | Sequential | `notion_save_analysis`, `gmail_send_report`, `gmail_search_newsletters`, `calendar_schedule_review`, `calendar_set_followup` |
 
 ## Tech Stack
 
-TypeScript / LangGraph.js + LangChain.js + Vercel AI SDK + MCP + DeepSeek + Yahoo Finance API
+| Layer | Technology |
+|-------|-----------|
+| Orchestration | LangGraph.js (state machine, conditional edges, checkpointer) |
+| Agents | LangChain.js (tool-augmented LLM agents) |
+| Streaming | Vercel AI SDK |
+| LLM | DeepSeek (chat + reasoner models) |
+| Finance Data | Yahoo Finance Chart API (real-time quotes, historical data) |
+| External Services | Model Context Protocol — Notion, Gmail, Calendar |
+| Runtime | TypeScript, Node.js |
 
 ## Quick Start
 
@@ -74,7 +104,3 @@ src/
     ├── processReward.ts     # Step-level evaluation (PRM)
     └── costTracker.ts       # Token economics & budget
 ```
-
-## Sample Output
-
-See [`output/`](./output/) for generated reports (English & Chinese).
