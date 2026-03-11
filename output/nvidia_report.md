@@ -119,28 +119,3 @@ This range reflects the stock's high volatility and the bifurcated growth narrat
 | **Dividend Yield** | 0.02% |
 
 *Data as of: 2026-03-10*
-
----
-
-## Live Market Data (Verified)
-
-> The following data is fetched in real-time from Yahoo Finance at report generation time and supersedes any conflicting figures in the analysis above.
-
-| Metric | Value |
-| :--- | :--- |
-| **Company** | NVIDIA Corporation |
-| **Current Price** | $182.47 |
-| **Market Cap** | $4.43T |
-| **P/E Ratio (TTM)** | 37.24 |
-| **Forward P/E** | 16.90 |
-| **EPS (TTM)** | $4.90 |
-| **Revenue (TTM)** | $215.94B |
-| **Gross Margin** | 71.07% |
-| **Profit Margin** | 55.60% |
-| **ROE** | 101.49% |
-| **52-Week High** | $212.19 |
-| **52-Week Low** | $86.62 |
-| **Beta** | 2.38 |
-| **Dividend Yield** | 0.02% |
-
-*Data as of: 2026-03-10*

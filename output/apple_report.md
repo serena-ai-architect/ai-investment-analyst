@@ -122,28 +122,3 @@ This range is derived from the current price of $258.54, the 52-week high of $28
 
 ---
 **Analyst Note:** This report is based on provided data and real-time market metrics. The investment thesis is sensitive to regulatory developments and the successful launch of new product categories. The Hold recommendation reflects a balanced view of Apple's immense strengths against near-term uncertainties that are not yet resolved.
-
----
-
-## Live Market Data (Verified)
-
-> The following data is fetched in real-time from Yahoo Finance at report generation time and supersedes any conflicting figures in the analysis above.
-
-| Metric | Value |
-| :--- | :--- |
-| **Company** | Apple Inc. |
-| **Current Price** | $258.85 |
-| **Market Cap** | $3.80T |
-| **P/E Ratio (TTM)** | 32.77 |
-| **Forward P/E** | 27.86 |
-| **EPS (TTM)** | $7.90 |
-| **Revenue (TTM)** | $435.62B |
-| **Gross Margin** | 47.33% |
-| **Profit Margin** | 27.04% |
-| **ROE** | 152.02% |
-| **52-Week High** | $288.62 |
-| **52-Week Low** | $169.21 |
-| **Beta** | 1.12 |
-| **Dividend Yield** | 0.40% |
-
-*Data as of: 2026-03-10*

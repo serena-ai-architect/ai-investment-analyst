@@ -220,6 +220,9 @@ export async function reportNode(state: AgentState): Promise<Partial<AgentState>
 
 /** Replace the Key Metrics Dashboard (or append) with verified live data. */
 function appendLiveDataSection(report: string, liveDataJson: string): string {
+  // Skip if the LLM already generated a Live Market Data section
+  if (report.includes("Live Market Data (Verified)")) return report;
+
   try {
     const data = JSON.parse(liveDataJson);
     const ts = data["Data Timestamp"]

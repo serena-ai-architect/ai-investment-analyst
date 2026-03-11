@@ -106,6 +106,74 @@ EMAIL_TO=you@gmail.com
 
 When configured, each report is automatically saved to Notion and emailed after generation. When not configured, delivery is gracefully skipped — reports are still generated and saved locally.
 
+## Example: AMD Analysis (Live Run)
+
+Full pipeline execution — planning, 10-agent research, Reflexion self-improvement loop, real-time Yahoo Finance data, Notion + email delivery.
+
+### Pipeline Execution
+
+```
+🎯 Target: AMD
+📋 Query: Comprehensive investment analysis of AMD
+⚙️  Mode: full
+⏱️  Started: 2026-03-11T08:17:25Z
+-----------------------------------------------------------------
+  [16:17:42] 📋 Dynamic plan created: 9 tasks
+  📍 Phase: planned
+  [16:17:42] 📚 Historical context loaded from Notion
+  📍 Phase: context_loaded
+  [16:18:22] ✅ Research crew completed for AMD
+  📍 Phase: research_complete
+  [16:18:25] ✅ Analysis crew completed (3 analysts ran in parallel)
+  📍 Phase: analysis_complete
+  [16:18:31] ✅ Risk crew completed (score: 5)
+  📍 Phase: risk_complete
+  [16:19:11] ✅ Report generated (iteration 1)
+  [16:19:38] 🪞 Reflexion: score=5/10 (attempt 1), retry=true, actions=5
+  [16:20:41] ✅ Report generated (iteration 2)
+  [16:21:05] 🪞 Reflexion: score=5/10 (attempt 2), retry=true, actions=5
+  [16:22:06] ✅ Report generated (iteration 3)
+  [16:22:33] 🪞 Reflexion: score=4/10 (attempt 3), retry=false, actions=5
+  📍 Phase: reflexion_complete
+  [16:22:44] 📨 Delivery complete:
+    📝 Notion: ✅ saved → notion.so/320c0dfa43c981cf8bf0ee63ebcff605
+    📧 Email: ✅ sent
+  📍 Phase: delivered
+  [16:22:44] 🏁 Workflow completed. Final report ready.
+💾 English report saved to: output/amd_report.md
+💾 Chinese report saved to: output/amd_report_zh.md
+```
+
+### Report Output (Verified Live Data)
+
+The system fetches real-time data from Yahoo Finance and appends it as a verified appendix, superseding any LLM-generated figures:
+
+| Metric | Value |
+|--------|-------|
+| **Company** | Advanced Micro Devices, Inc. |
+| **Current Price** | $203.23 |
+| **Market Cap** | $331.35B |
+| **P/E Ratio (TTM)** | 78.17 |
+| **Forward P/E** | 18.67 |
+| **EPS (TTM)** | $2.60 |
+| **Revenue (TTM)** | $34.64B |
+| **Gross Margin** | 52.49% |
+| **Profit Margin** | 12.52% |
+| **52-Week Range** | $76.48 — $267.08 |
+| **Risk Score** | 5/10 |
+| **Recommendation** | HOLD |
+
+*Data as of: 2026-03-11. Full reports: [English](output/amd_report.md) · [中文](output/amd_report_zh.md)*
+
+### Delivery
+
+Reports are automatically delivered to configured destinations after generation:
+
+- **Notion** — full report saved as a rich page in Knowledge Database with structured sections, tables, and live data
+- **Email** — HTML notification with executive summary, key metrics table, and risk assessment sent to configured recipients
+
+> **Watchlist mode**: `npm run watchlist` analyzes all tracked companies (NVIDIA, Apple, Google, Micron, AMD, Amazon, Alibaba) in sequence, delivering each report to Notion + email as it completes.
+
 ## Project Structure
 
 ```
