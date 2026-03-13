@@ -1,40 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase-browser";
+import { useRouter } from "next/navigation";
 import { useLang } from "@/components/providers";
 
 export default function LoginPage() {
   const { t } = useLang();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  async function handleLogin(e: React.FormEvent) {
+  function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
-    });
-
-    if (error) {
-      setMessage(error.message);
-    } else {
-      setMessage("Check your email for the login link!");
-    }
-    setLoading(false);
+    // MVP: skip real auth, just store email in cookie and redirect
+    document.cookie = `mvp_email=${encodeURIComponent(email)};path=/;max-age=${60 * 60 * 24 * 30}`;
+    router.push("/dashboard");
   }
 
-  async function handleGoogleLogin() {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/dashboard` },
-    });
+  function handleGoogleLogin() {
+    // MVP: use a placeholder Google email and redirect
+    const placeholderEmail = "user@gmail.com";
+    document.cookie = `mvp_email=${encodeURIComponent(placeholderEmail)};path=/;max-age=${60 * 60 * 24 * 30}`;
+    router.push("/dashboard");
   }
 
   return (

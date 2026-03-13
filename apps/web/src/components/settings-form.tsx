@@ -29,14 +29,9 @@ export function SettingsForm({ profile }: { profile: Profile }) {
     setTimeout(() => setSaved(false), 2000);
   }
 
-  async function handleSignOut() {
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      try {
-        const { createClient } = await import("@/lib/supabase-browser");
-        const supabase = createClient();
-        await supabase.auth.signOut();
-      } catch { /* demo mode */ }
-    }
+  function handleSignOut() {
+    // MVP: clear the email cookie and redirect to login
+    document.cookie = "mvp_email=;path=/;max-age=0";
     window.location.href = "/login";
   }
 
