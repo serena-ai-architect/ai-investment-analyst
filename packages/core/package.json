@@ -10,7 +10,9 @@
   "scripts": {
     "build": "tsc",
     "type-check": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "eval": "tsx src/eval/run.ts",
+    "eval:baseline": "tsx src/eval/run.ts --save-baseline"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.1.0",

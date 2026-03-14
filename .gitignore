@@ -9,3 +9,7 @@ interview-talking-points.md
 .turbo/
 *.tsbuildinfo
 .vercel
+
+# Eval results (except baseline and .gitkeep)
+packages/core/src/eval/results/*.json
+!packages/core/src/eval/results/baseline.json
