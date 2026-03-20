@@ -1,0 +1,18 @@
+# Claude Progress — ai-investment-system
+# This file is maintained by Claude Code at the end of each session.
+# Do NOT manually edit unless correcting an error.
+
+## Last Updated
+(not yet initialized)
+
+## Current State
+- Project initialized but progress tracking not yet active
+
+## What Was Completed
+(none yet)
+
+## What Is Blocked
+(nothing currently)
+
+## Next Steps
+(awaiting first tracked session)

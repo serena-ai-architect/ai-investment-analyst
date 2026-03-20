@@ -18,7 +18,7 @@
     "test": {
       "dependsOn": ["^build"]
     },
-    "test": {
+    "validate": {
       "dependsOn": ["^build"]
     }
   }

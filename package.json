@@ -17,7 +17,8 @@
     "watchlist": "npm run -w @repo/cli watchlist",
     "watchlist:quick": "npm run -w @repo/cli watchlist:quick",
     "type-check": "turbo type-check",
-    "lint": "turbo lint"
+    "lint": "turbo lint",
+    "validate": "turbo validate"
   },
   "devDependencies": {
     "turbo": "^2.4.0",
