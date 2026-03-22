@@ -504,6 +504,11 @@ const NVIDIA_SUMMARY = "As of March 10, 2026, NVIDIA Corporation (NVDA) presents
 
 const APPLE_SUMMARY = "As of March 10, 2026, Apple Inc. (AAPL) maintains its position as the world's most valuable public company, with a market capitalization of $3.80 trillion. The stock trades at $258.54, reflecting robust investor confidence supported by exceptional profitability metrics, including a trailing twelve-month (TTM) profit margin of 27.04% and a return on equity (ROE) of 152.02%.";
 
+/** Generate ISO date string relative to now. hoursAgo=2 means 2 hours ago. */
+function ago(hoursAgo: number): string {
+  return new Date(Date.now() - hoursAgo * 3600_000).toISOString();
+}
+
 export const DEMO_REPORTS: Report[] = [
   {
     id: "demo-nvidia",
@@ -522,9 +527,9 @@ export const DEMO_REPORTS: Report[] = [
     progress_log: [],
     notion_page_url: null,
     email_sent_at: null,
-    started_at: "2026-03-10T14:00:00Z",
-    completed_at: "2026-03-10T14:32:00Z",
-    created_at: "2026-03-10T14:00:00Z",
+    started_at: ago(2),
+    completed_at: ago(1.5),
+    created_at: ago(2),
   },
   {
     id: "demo-apple",
@@ -543,9 +548,9 @@ export const DEMO_REPORTS: Report[] = [
     progress_log: [],
     notion_page_url: null,
     email_sent_at: null,
-    started_at: "2026-03-10T11:45:00Z",
-    completed_at: "2026-03-10T12:15:00Z",
-    created_at: "2026-03-10T11:45:00Z",
+    started_at: ago(5),
+    completed_at: ago(4.5),
+    created_at: ago(5),
   },
   {
     id: "demo-amd",
@@ -563,17 +568,17 @@ export const DEMO_REPORTS: Report[] = [
     current_phase: "Risk Assessment",
     progress_log: [
       "[14:00] Starting analysis for AMD...",
-      "[14:01] Market Researcher: Collecting real-time market data from Yahoo Finance...",
-      "[14:02] Market Researcher: AMD current price $148.32, Market Cap $239.8B",
+      "[14:01] Research Skills: Collecting real-time market data...",
+      "[14:02] Research Skills: AMD current price $148.32, Market Cap $239.8B",
       "[14:03] Financial Analyst: Analyzing FY2025 financial statements...",
-      "[14:05] Industry Analyst: Evaluating competitive landscape vs NVIDIA, Intel...",
+      "[14:05] Market Analyst: Evaluating competitive landscape vs NVIDIA, Intel...",
       "[14:07] Risk Analyst: Assessing semiconductor cycle and geopolitical risks...",
     ],
     notion_page_url: null,
     email_sent_at: null,
-    started_at: "2026-03-11T14:00:00Z",
+    started_at: ago(0.5),
     completed_at: null,
-    created_at: "2026-03-11T14:00:00Z",
+    created_at: ago(0.5),
   },
   {
     id: "demo-tesla",
@@ -591,14 +596,14 @@ export const DEMO_REPORTS: Report[] = [
     current_phase: "Error: DeepSeek API rate limit exceeded. Please retry in 60 seconds.",
     progress_log: [
       "[10:00] Starting analysis for Tesla...",
-      "[10:01] Market Researcher: Collecting market data...",
+      "[10:01] Research Skills: Collecting market data...",
       "[10:02] Error: API rate limit exceeded",
     ],
     notion_page_url: null,
     email_sent_at: null,
-    started_at: "2026-03-09T10:00:00Z",
-    completed_at: "2026-03-09T10:02:00Z",
-    created_at: "2026-03-09T10:00:00Z",
+    started_at: ago(24),
+    completed_at: ago(23.97),
+    created_at: ago(24),
   },
 ];
 
@@ -613,7 +618,7 @@ export const DEMO_WATCHLIST: WatchlistItem[] = [
 export const DEMO_USAGE: Usage = {
   id: "demo-usage",
   user_id: "demo",
-  period_start: "2026-03-01",
+  period_start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0],
   reports_generated: 7,
   tokens_used: 285400,
   llm_cost_usd: 4.28,

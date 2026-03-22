@@ -44,7 +44,8 @@ export function PipelineProgress({ events, startTime }: PipelineProgressProps) {
   }, [events, startTime]);
 
   const progress = isComplete ? 100 : Math.round((completedCount / TOTAL_NODES) * 100);
-  const nodeLabel = currentNode ? NODE_ORDER.indexOf(currentNode) + 1 : completedCount;
+  const nodeIdx = currentNode ? NODE_ORDER.indexOf(currentNode) : -1;
+  const nodeLabel = nodeIdx >= 0 ? nodeIdx + 1 : completedCount;
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[var(--shadow)]">

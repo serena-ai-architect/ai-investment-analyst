@@ -110,6 +110,124 @@ export const DEMO_TRACE: DemoTraceItem[] = [
   { delayMs: 80500, event: { type: "pipeline_complete", qualityScore: 8.2, riskScore: 6.5, durationMs: 80500, timestamp: "2026-03-22T10:01:20.500Z" } },
 ];
 
+// ═══════════════════════════════════════════════════════════════
+// Dynamic Demo Trace Generator — works with ANY company name
+// ═══════════════════════════════════════════════════════════════
+
+const HK_TICKER_PATTERNS = [".HK", "0700", "1211", "1810", "3690", "9988", "9618"];
+
+/** Detect if a company name/ticker likely refers to an HK-listed company */
+function isHKCompany(company: string): boolean {
+  const upper = company.toUpperCase();
+  if (HK_TICKER_PATTERNS.some((p) => upper.includes(p))) return true;
+  const hkNames = ["tencent", "byd", "xiaomi", "meituan", "alibaba hk", "jd hk", "netease", "baidu",
+    "腾讯", "比亚迪", "小米", "美团", "阿里巴巴", "京东", "网易", "百度"];
+  return hkNames.some((n) => company.toLowerCase().includes(n));
+}
+
+/**
+ * Generate a realistic demo trace for any company name.
+ * HK companies get compliance skill invocation events.
+ */
+export function generateDemoTrace(company: string): { trace: DemoTraceItem[]; qualityScore: number; riskScore: number } {
+  const hk = isHKCompany(company);
+  const ts = (offset: number) => new Date(Date.now() + offset).toISOString();
+  const qualityScore = 7.8 + Math.random() * 1.2; // 7.8-9.0
+  const riskScore = 4.5 + Math.random() * 2.5;    // 4.5-7.0
+
+  const trace: DemoTraceItem[] = [
+    // ── Planning ──
+    { delayMs: 0, event: { type: "node_start", node: "planning", timestamp: ts(0) } },
+    { delayMs: 500, event: { type: "log", node: "planning", message: `[Planning] Creating execution plan for ${company}...`, timestamp: ts(500) } },
+    { delayMs: 2500, event: { type: "log", node: "planning", message: `[Planning] Plan created: ${hk ? 9 : 8} tasks${hk ? " (including HK regulatory analysis)" : ""}`, timestamp: ts(2500) } },
+    { delayMs: 3000, event: { type: "phase_change", phase: "planned", timestamp: ts(3000) } },
+    { delayMs: 3200, event: { type: "node_end", node: "planning", timestamp: ts(3200), durationMs: 3200 } },
+
+    // ── Context ──
+    { delayMs: 3500, event: { type: "node_start", node: "notionContext", timestamp: ts(3500) } },
+    { delayMs: 5000, event: { type: "log", node: "notionContext", message: `[Context] Searching for past analyses of ${company}...`, timestamp: ts(5000) } },
+    { delayMs: 5500, event: { type: "node_end", node: "notionContext", timestamp: ts(5500), durationMs: 2000 } },
+
+    // ── Research ──
+    { delayMs: 6000, event: { type: "node_start", node: "research", timestamp: ts(6000) } },
+    { delayMs: 7000, event: { type: "log", node: "research", message: `[Research] Web Researcher: gathering data on ${company}...`, timestamp: ts(7000) } },
+    ...(hk ? [
+      { delayMs: 10000, event: { type: "skill_invocation" as const, skill: "search_hkex_filings", provider: "fin-intel-mcp", node: "research", timestamp: ts(10000) } },
+      { delayMs: 11000, event: { type: "log" as const, node: "research", message: `[Research] HKEX filings retrieved for ${company}`, timestamp: ts(11000) } },
+    ] : []),
+    { delayMs: 14000, event: { type: "log", node: "research", message: `[Research] Data Collector: financial metrics retrieved`, timestamp: ts(14000) } },
+    { delayMs: 17000, event: { type: "log", node: "research", message: `[Research] Synthesizer: consolidating ${hk ? 15 : 18} sources`, timestamp: ts(17000) } },
+    { delayMs: 18000, event: { type: "prm_score", node: "research", score: 8.2 + Math.random() * 0.8, dimensions: { coverage: 9, recency: 8, sourceQuality: 8, contradictionHandling: 8 }, recommendation: "proceed", timestamp: ts(18000) } },
+    { delayMs: 18500, event: { type: "phase_change", phase: "research_complete", timestamp: ts(18500) } },
+    { delayMs: 19000, event: { type: "node_end", node: "research", timestamp: ts(19000), durationMs: 13000 } },
+
+    // ── Analysis ──
+    { delayMs: 19500, event: { type: "node_start", node: "analysis", timestamp: ts(19500) } },
+    { delayMs: 20500, event: { type: "log", node: "analysis", message: `[Analysis] Financial Analyst: analyzing ${company} fundamentals`, timestamp: ts(20500) } },
+    { delayMs: 23000, event: { type: "log", node: "analysis", message: `[Analysis] Market Analyst: evaluating competitive moat`, timestamp: ts(23000) } },
+    { delayMs: 26000, event: { type: "log", node: "analysis", message: `[Analysis] Tech Analyst: assessing technology stack`, timestamp: ts(26000) } },
+    { delayMs: 28000, event: { type: "prm_score", node: "financial_analysis", score: 8.0 + Math.random(), dimensions: { accuracy: 9, valuationRigor: 8, trendAnalysis: 8, margins: 8 }, recommendation: "proceed", timestamp: ts(28000) } },
+    { delayMs: 29000, event: { type: "phase_change", phase: "analysis_complete", timestamp: ts(29000) } },
+    { delayMs: 29500, event: { type: "node_end", node: "analysis", timestamp: ts(29500), durationMs: 10000 } },
+
+    // ── Risk + Compliance ──
+    { delayMs: 30000, event: { type: "node_start", node: "risk", timestamp: ts(30000) } },
+    { delayMs: 31000, event: { type: "log", node: "risk", message: `[Risk] Evaluating ${hk ? 6 : 5} risk dimensions for ${company}`, timestamp: ts(31000) } },
+    ...(hk ? [
+      { delayMs: 33000, event: { type: "skill_invocation" as const, skill: "check_hk_compliance", provider: "fin-intel-mcp", node: "risk", timestamp: ts(33000) } },
+      { delayMs: 34000, event: { type: "log" as const, node: "risk", message: `[Compliance] HK regulatory: HKMA, SFC, PDPO rules checked`, timestamp: ts(34000) } },
+      { delayMs: 35000, event: { type: "skill_invocation" as const, skill: "assess_cross_border_risk", provider: "fin-intel-mcp", node: "risk", timestamp: ts(35000) } },
+      { delayMs: 36000, event: { type: "log" as const, node: "risk", message: `[Compliance] Cross-border risk: data localization, capital flow assessed`, timestamp: ts(36000) } },
+    ] : []),
+    { delayMs: 38000, event: { type: "prm_score", node: "risk_assessment", score: 7.8 + Math.random() * 0.8, dimensions: { dimensionCount: 9, likelihoodImpact: 8, companySpecific: 8, mitigations: 7 }, recommendation: "proceed", timestamp: ts(38000) } },
+    { delayMs: 38500, event: { type: "node_end", node: "risk", timestamp: ts(38500), durationMs: 8500 } },
+
+    // ── Report (attempt 1) ──
+    { delayMs: 39000, event: { type: "node_start", node: "report", timestamp: ts(39000) } },
+    { delayMs: 40000, event: { type: "log", node: "report", message: `[Report] Generating ${company} investment report — attempt 1`, timestamp: ts(40000) } },
+    { delayMs: 47000, event: { type: "prm_score", node: "report_generation", score: 6.5 + Math.random() * 0.5, dimensions: { sectionsPresent: 7, dataSynthesis: 7, recommendation: 6, writingQuality: 6 }, recommendation: "proceed", timestamp: ts(47000) } },
+    { delayMs: 47500, event: { type: "node_end", node: "report", timestamp: ts(47500), durationMs: 8500 } },
+
+    // ── Reflexion (attempt 1 — retry) ──
+    { delayMs: 48000, event: { type: "node_start", node: "reflexion", timestamp: ts(48000) } },
+    { delayMs: 51000, event: { type: "reflexion", score: 6.5, shouldRetry: true, actionItems: [
+      "Strengthen recommendation with specific price targets",
+      hk ? "Add HK regulatory analysis with HKMA/SFC citations" : "Add more competitive analysis depth",
+      "Improve executive summary clarity",
+    ], attempt: 1, timestamp: ts(51000) } },
+    { delayMs: 51500, event: { type: "log", node: "reflexion", message: `[Reflexion] Score: 6.5/10 — below threshold, retrying`, timestamp: ts(51500) } },
+    { delayMs: 52000, event: { type: "node_end", node: "reflexion", timestamp: ts(52000), durationMs: 4000 } },
+
+    // ── Report (attempt 2 — improved) ──
+    { delayMs: 52500, event: { type: "node_start", node: "report", timestamp: ts(52500) } },
+    { delayMs: 53500, event: { type: "log", node: "report", message: `[Report] Regenerating with reflexion feedback — attempt 2`, timestamp: ts(53500) } },
+    { delayMs: 60000, event: { type: "prm_score", node: "report_generation", score: +(qualityScore.toFixed(1)), dimensions: { sectionsPresent: 9, dataSynthesis: 8, recommendation: 8, writingQuality: 8 }, recommendation: "proceed", timestamp: ts(60000) } },
+    { delayMs: 60500, event: { type: "node_end", node: "report", timestamp: ts(60500), durationMs: 8000 } },
+
+    // ── Reflexion (attempt 2 — passes) ──
+    { delayMs: 61000, event: { type: "node_start", node: "reflexion", timestamp: ts(61000) } },
+    { delayMs: 64000, event: { type: "reflexion", score: +qualityScore.toFixed(1), shouldRetry: false, actionItems: ["Minor improvements possible"], attempt: 2, timestamp: ts(64000) } },
+    { delayMs: 64500, event: { type: "log", node: "reflexion", message: `[Reflexion] Score: ${qualityScore.toFixed(1)}/10 — above threshold, proceeding`, timestamp: ts(64500) } },
+    { delayMs: 65000, event: { type: "node_end", node: "reflexion", timestamp: ts(65000), durationMs: 4000 } },
+
+    // ── Delivery ──
+    { delayMs: 65500, event: { type: "node_start", node: "delivery", timestamp: ts(65500) } },
+    { delayMs: 68000, event: { type: "log", node: "delivery", message: `[Delivery] ${company} report: Notion saved, Email sent`, timestamp: ts(68000) } },
+    { delayMs: 69000, event: { type: "node_end", node: "delivery", timestamp: ts(69000), durationMs: 3500 } },
+
+    // ── Finalize ──
+    { delayMs: 69500, event: { type: "node_start", node: "finalize", timestamp: ts(69500) } },
+    { delayMs: 70500, event: { type: "cost_update", totalCost: +(0.2 + Math.random() * 0.2).toFixed(2), totalTokens: Math.round(120000 + Math.random() * 40000), byAgent: { planner: 0.02, researcher: 0.06, dataCollector: 0.03, synthesizer: 0.02, financialAnalyst: 0.03, marketAnalyst: 0.03, techAnalyst: 0.02, riskAnalyst: 0.02, complianceAnalyst: hk ? 0.03 : 0.01, reportWriter: 0.02, reflexion: 0.01 }, timestamp: ts(70500) } },
+    { delayMs: 71000, event: { type: "phase_change", phase: "completed", timestamp: ts(71000) } },
+    { delayMs: 71500, event: { type: "node_end", node: "finalize", timestamp: ts(71500), durationMs: 2000 } },
+
+    // ── Complete ──
+    { delayMs: 72000, event: { type: "pipeline_complete", qualityScore: +qualityScore.toFixed(1), riskScore: +riskScore.toFixed(1), durationMs: 72000, timestamp: ts(72000) } },
+  ];
+
+  return { trace, qualityScore: +qualityScore.toFixed(1), riskScore: +riskScore.toFixed(1) };
+}
+
 /**
  * Pre-recorded pipeline trace for Tencent (0700.HK) analysis demo.
  * Showcases HK regulatory compliance skills and cross-border risk assessment.

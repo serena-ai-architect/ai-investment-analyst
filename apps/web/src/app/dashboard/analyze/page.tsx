@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { AnalysisVisualization } from "@/components/analysis-visualization";
@@ -11,16 +12,24 @@ function AnalyzeContent() {
   const company = searchParams.get("company") ?? undefined;
   const mode = (searchParams.get("mode") as "quick" | "full") ?? "full";
   const demo = searchParams.get("demo") === "true" || !company;
+  const [activeCompany, setActiveCompany] = useState(company ?? "");
+
+  const description = activeCompany
+    ? t("analyze.demoDescription").replace("{company}", activeCompany)
+    : t("analyze.readyDescription");
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">{t("analyze.title")}</h2>
-        <p className="mt-1 text-[var(--muted-foreground)]">
-          {demo ? t("analyze.demoDescription") : `${t("analyze.liveDescription")}: ${company}`}
-        </p>
+        <p className="mt-1 text-[var(--muted-foreground)]">{description}</p>
       </div>
-      <AnalysisVisualization company={company} mode={mode} demo={demo} />
+      <AnalysisVisualization
+        company={company}
+        mode={mode}
+        demo={demo}
+        onDemoCompanyChange={setActiveCompany}
+      />
     </div>
   );
 }

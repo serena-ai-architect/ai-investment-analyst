@@ -92,7 +92,8 @@ export const translations = {
     // Analyze (pipeline visualization)
     "nav.analyze": "Analyze",
     "analyze.title": "Pipeline Visualization",
-    "analyze.demoDescription": "Watch the multi-agent pipeline analyze NVIDIA in real-time (demo)",
+    "analyze.demoDescription": "Watch the multi-agent pipeline analyze {company} in real-time",
+    "analyze.readyDescription": "Enter any company name to watch the skill-composition pipeline in action",
     "analyze.liveDescription": "Live analysis running",
     "analyze.pipeline": "Pipeline",
     "analyze.executionLog": "Execution Log",
@@ -214,7 +215,8 @@ export const translations = {
     // Analyze (pipeline visualization)
     "nav.analyze": "分析",
     "analyze.title": "流水线可视化",
-    "analyze.demoDescription": "实时观看多 Agent 流水线分析英伟达（演示）",
+    "analyze.demoDescription": "实时观看多 Agent 流水线分析 {company}",
+    "analyze.readyDescription": "输入任意公司名称，观看技能组合流水线实时运行",
     "analyze.liveDescription": "实时分析运行中",
     "analyze.pipeline": "流水线",
     "analyze.executionLog": "执行日志",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import type { PipelineEvent } from "@repo/core";
 import { PipelineDAG } from "./pipeline-dag";
@@ -8,39 +8,45 @@ import { ExecutionLog } from "./execution-log";
 import { PipelineProgress } from "./pipeline-progress";
 import { NodeDetailPopover } from "./node-detail-popover";
 import { usePipelineStream, type UsePipelineStreamReturn } from "@/hooks/usePipelineStream";
-import { useDemoPlayback, type DemoType } from "@/hooks/useDemoPlayback";
+import { useDemoPlayback } from "@/hooks/useDemoPlayback";
 import { useLang } from "./providers";
 
 interface AnalysisVisualizationProps {
   company?: string;
   mode?: "quick" | "full";
   demo?: boolean;
+  onDemoCompanyChange?: (company: string) => void;
 }
 
-export function AnalysisVisualization({ company, mode = "full", demo = false }: AnalysisVisualizationProps) {
+export function AnalysisVisualization({ company: initialCompany, mode = "full", demo = false, onDemoCompanyChange }: AnalysisVisualizationProps) {
   const { t } = useLang();
   const [speed, setSpeed] = useState(1);
-  const [demoType, setDemoType] = useState<DemoType>("hk");
+  const [activeCompany, setActiveCompany] = useState(initialCompany ?? "");
+  const [inputCompany, setInputCompany] = useState(initialCompany ?? "");
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const hasAutoStarted = useRef(false);
 
   const liveStream = usePipelineStream();
-  const demoStream = useDemoPlayback(speed, demoType);
+  const demoStream = useDemoPlayback(speed);
   const stream: UsePipelineStreamReturn = demo ? demoStream : liveStream;
 
-  const handleStart = useCallback(() => {
+  const handleStart = useCallback((companyName: string) => {
+    if (!companyName.trim()) return;
+    setActiveCompany(companyName);
     setStartTime(Date.now());
-    stream.start(company ?? (demoType === "hk" ? "Tencent" : "NVIDIA"), mode);
-  }, [company, mode, demoType, stream]);
+    onDemoCompanyChange?.(companyName);
+    stream.start(companyName, mode);
+  }, [mode, stream, onDemoCompanyChange]);
 
-  // Auto-start on mount if company is provided or demo mode
+  // Auto-start once if company provided via URL (live mode)
   useEffect(() => {
-    if ((company || demo) && stream.status === "idle") {
-      handleStart();
+    if (initialCompany && !hasAutoStarted.current && stream.status === "idle") {
+      hasAutoStarted.current = true;
+      handleStart(initialCompany);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialCompany, stream.status, handleStart]);
 
   // Elapsed time timer
   useEffect(() => {
@@ -63,41 +69,23 @@ export function AnalysisVisualization({ company, mode = "full", demo = false }: 
           <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[var(--shadow)]">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-sm font-semibold">{t("analyze.pipeline")}</h3>
+              {/* Speed control (demo mode only — no effect on live SSE) */}
               {demo && (
-                <div className="flex items-center gap-3">
-                  {/* Demo type selector */}
-                  <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] p-0.5">
-                    {(["hk", "us"] as DemoType[]).map((dt) => (
-                      <button
-                        key={dt}
-                        onClick={() => { setDemoType(dt); stream.reset(); setStartTime(null); setSelectedNode(null); }}
-                        className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
-                          demoType === dt
-                            ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
-                        }`}
-                      >
-                        {dt === "hk" ? t("analyze.demoHK") : t("analyze.demoUS")}
-                      </button>
-                    ))}
-                  </div>
-                  {/* Speed control */}
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-[var(--muted-foreground)]">{t("analyze.speed")}:</span>
-                    {[1, 2, 4].map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setSpeed(s)}
-                        className={`rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors ${
-                          speed === s
-                            ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                            : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
-                        }`}
-                      >
-                        {s}x
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-[var(--muted-foreground)]">{t("analyze.speed")}:</span>
+                  {[1, 2, 4].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setSpeed(s)}
+                      className={`rounded px-1.5 py-0.5 text-[10px] font-medium transition-colors ${
+                        speed === s
+                          ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                          : "text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+                      }`}
+                    >
+                      {s}x
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -138,12 +126,25 @@ export function AnalysisVisualization({ company, mode = "full", demo = false }: 
       <div className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 shadow-[var(--shadow)]">
         <div className="flex items-center gap-3">
           {stream.status === "idle" && (
-            <button
-              onClick={handleStart}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[var(--gradient-from)] to-[var(--gradient-to)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow)] transition-all hover:opacity-90"
+            <form
+              onSubmit={(e) => { e.preventDefault(); if (inputCompany.trim()) handleStart(inputCompany.trim()); }}
+              className="flex items-center gap-2"
             >
-              {t("analyze.startAnalysis")}
-            </button>
+              <input
+                type="text"
+                value={inputCompany}
+                onChange={(e) => setInputCompany(e.target.value)}
+                placeholder={t("form.companyPlaceholder")}
+                className="w-48 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20"
+              />
+              <button
+                type="submit"
+                disabled={!inputCompany.trim()}
+                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[var(--gradient-from)] to-[var(--gradient-to)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow)] transition-all hover:opacity-90 disabled:opacity-50"
+              >
+                {t("analyze.startAnalysis")}
+              </button>
+            </form>
           )}
           {stream.status === "complete" && stream.result && (
             <div className="flex items-center gap-3">
@@ -174,7 +175,7 @@ export function AnalysisVisualization({ company, mode = "full", demo = false }: 
           )}
           {stream.status !== "idle" && (
             <button
-              onClick={() => { stream.reset(); setStartTime(null); setSelectedNode(null); setElapsed(0); }}
+              onClick={() => { stream.reset(); setStartTime(null); setSelectedNode(null); setElapsed(0); setActiveCompany(""); setInputCompany(""); }}
               className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]"
             >
               {t("analyze.reset")}
@@ -282,7 +283,7 @@ function CostSummary({ events }: { events: PipelineEvent[] }) {
           </p>
           <div className="space-y-1.5">
             {topAgents.map(([agent, agentCost]) => {
-              const pct = data.cost ? (agentCost / data.cost) * 100 : 0;
+              const pct = data.cost && data.cost > 0 ? (agentCost / data.cost) * 100 : 0;
               return (
                 <div key={agent} className="flex items-center gap-2">
                   <span className="w-28 truncate text-xs text-[var(--muted-foreground)]">{agent}</span>

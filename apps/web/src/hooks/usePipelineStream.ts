@@ -94,6 +94,14 @@ export function usePipelineStream(): UsePipelineStreamReturn {
           }
         }
 
+        // Process any remaining data in buffer
+        if (buffer.startsWith("data: ")) {
+          try {
+            const parsed = JSON.parse(buffer.slice(6));
+            setEvents((prev) => [...prev, parsed as PipelineEvent]);
+          } catch { /* ignore partial data */ }
+        }
+
         // If we finished reading without a "done" event, mark complete
         setStatus((s) => (s === "streaming" ? "complete" : s));
       } catch (e) {
