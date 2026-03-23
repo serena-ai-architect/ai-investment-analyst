@@ -1,10 +1,10 @@
-# AGENTS.md — ai-investment-analyst
+# AGENTS.md — agentic-analyst
 
 ## Quick Reference
 
 - **Architecture**: Skill-composition platform — 10 skills across 4 domains, orchestrated by LangGraph.js
 - **Skill Domains**: Research, Analysis, Compliance & Risk, Delivery
-- **Skill Layer (MCP)**: [fin-intel-mcp](../fin-intel-mcp/) — 9 composable financial intelligence tools (6 core + 3 HK regulatory)
+- **Skill Layer (MCP)**: [hk-regtech-mcp](../hk-regtech-mcp/) — 9 composable financial intelligence tools (6 core + 3 HK regulatory)
 - **Stack**: TypeScript, LangGraph.js, LangChain.js, Turborepo
 - **Schema validation**: Zod (all inter-domain communication + tool parameters)
 - **Orchestration Skills**: Reflexion Engine, Process Reward Model, Dynamic Planner, Cost Tracker
@@ -24,7 +24,7 @@
 | Tools | `packages/core/src/tools/` | searchTools, financeTools, mcpTools, hkComplianceTools |
 | Orchestration Skills | `packages/core/src/skills/` | Reflexion, PRM, Planner, CostTracker |
 | Integrations | `packages/core/src/integrations/` | Notion API, email (SMTP) |
-| Skill Layer (MCP) | `../fin-intel-mcp/` | 9 composable tools: SEC RAG, sentiment, technical, HK compliance |
+| Skill Layer (MCP) | `../hk-regtech-mcp/` | 9 composable tools: SEC RAG, sentiment, technical, HK compliance |
 | Tests | `packages/core/src/__tests__/` | 8-layer test pyramid (~230 tests) |
 | Pipeline Visualization | `apps/web/src/components/pipeline-dag.tsx` | Real-time DAG + execution log + cost tracking |
 | Session State | `claude-progress.txt` | Current session state, blockers, and next steps |
@@ -53,7 +53,7 @@ These constraints are validated by `boundaries.test.ts`:
 
 ## Compliance-as-Infrastructure
 
-Regulatory rules are encoded as composable MCP tools in `fin-intel-mcp`, not hardcoded into agent prompts:
+Regulatory rules are encoded as composable MCP tools in `hk-regtech-mcp`, not hardcoded into agent prompts:
 
 | MCP Tool | Description | Regulator |
 |----------|-------------|-----------|

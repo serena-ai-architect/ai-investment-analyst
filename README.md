@@ -1,6 +1,6 @@
-# AI Investment Analyst
+# Agentic Analyst
 
-Skill-composition investment intelligence platform — composable financial skills orchestrated by LangGraph.js, with a pluggable Skill Layer ([fin-intel-mcp](../fin-intel-mcp/)) for regulatory compliance, SEC filing RAG, and technical analysis.
+Skill-composition investment intelligence platform — composable financial skills orchestrated by LangGraph.js, with a pluggable Skill Layer ([hk-regtech-mcp](../hk-regtech-mcp/)) for regulatory compliance, SEC filing RAG, and technical analysis.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js_15-000000?logo=next.js&logoColor=white)
@@ -30,21 +30,21 @@ graph TD
     finalize --> END([END])
 ```
 
-## Skill Layer: fin-intel-mcp
+## Skill Layer: hk-regtech-mcp
 
-The [Skill Layer](../fin-intel-mcp/) provides 9 composable MCP tools that any agent can consume — not coupled to this orchestrator:
+The [Skill Layer](../hk-regtech-mcp/) provides 9 composable MCP tools that any agent can consume — not coupled to this orchestrator:
 
 | Skill | Description | Provider |
 |-------|-------------|----------|
-| `search_sec_filings` | Hybrid RAG search over SEC 10-K/10-Q/8-K filings | fin-intel-mcp |
-| `search_earnings_calls` | RAG search over earnings call transcripts | fin-intel-mcp |
-| `analyze_sentiment` | Financial sentiment analysis (FinBERT/LLM) | fin-intel-mcp |
-| `get_technical_signals` | RSI, MACD, Bollinger Bands, Moving Averages | fin-intel-mcp |
-| `ingest_document` | Fetch SEC filing → parse → chunk → embed → pgvector | fin-intel-mcp |
-| `query_knowledge_base` | General RAG Q&A across all ingested documents | fin-intel-mcp |
-| `check_hk_compliance` | HK regulatory requirements (HKMA, SFC, PDPO, HKEX) | fin-intel-mcp |
-| `search_hkex_filings` | HKEX announcements and disclosure filings | fin-intel-mcp |
-| `assess_cross_border_risk` | Cross-border regulatory risk (HK↔Mainland↔Intl) | fin-intel-mcp |
+| `search_sec_filings` | Hybrid RAG search over SEC 10-K/10-Q/8-K filings | hk-regtech-mcp |
+| `search_earnings_calls` | RAG search over earnings call transcripts | hk-regtech-mcp |
+| `analyze_sentiment` | Financial sentiment analysis (FinBERT/LLM) | hk-regtech-mcp |
+| `get_technical_signals` | RSI, MACD, Bollinger Bands, Moving Averages | hk-regtech-mcp |
+| `ingest_document` | Fetch SEC filing → parse → chunk → embed → pgvector | hk-regtech-mcp |
+| `query_knowledge_base` | General RAG Q&A across all ingested documents | hk-regtech-mcp |
+| `check_hk_compliance` | HK regulatory requirements (HKMA, SFC, PDPO, HKEX) | hk-regtech-mcp |
+| `search_hkex_filings` | HKEX announcements and disclosure filings | hk-regtech-mcp |
+| `assess_cross_border_risk` | Cross-border regulatory risk (HK↔Mainland↔Intl) | hk-regtech-mcp |
 
 ## Technical Highlights
 
@@ -71,7 +71,7 @@ The [Skill Layer](../fin-intel-mcp/) provides 9 composable MCP tools that any ag
 | **Auth + DB** | Supabase (Postgres + Auth + RLS + Realtime) |
 | **Orchestration** | LangGraph.js (state machine, conditional edges, checkpointer) |
 | **Skills** | LangChain.js ReAct agents with tool binding |
-| **Skill Layer** | [fin-intel-mcp](../fin-intel-mcp/) (Python/FastAPI/MCP) — 9 composable tools |
+| **Skill Layer** | [hk-regtech-mcp](../hk-regtech-mcp/) (Python/FastAPI/MCP) — 9 composable tools |
 | **LLM** | DeepSeek-V3 (~$0.025/report), multi-provider routing |
 | **Finance Data** | Yahoo Finance Chart API, SEC EDGAR (via MCP) |
 | **HK Compliance** | HKMA, SFC, PDPO, HKEX rules database (via MCP) |
@@ -171,7 +171,7 @@ Started: 2026-03-11T08:17:25Z
 ## Project Structure
 
 ```
-ai-investment-analyst/
+agentic-analyst/
 ├── turbo.json                      # Turborepo config
 ├── package.json                    # Workspace root
 ├── packages/

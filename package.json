@@ -1,8 +1,8 @@
 {
-  "name": "ai-investment-analyst",
+  "name": "agentic-analyst",
   "version": "2.0.0",
   "private": true,
-  "description": "AI-powered investment research platform — multi-agent analysis engine + web dashboard",
+  "description": "Skill-composition investment intelligence platform — composable financial skills + HK compliance via MCP",
   "workspaces": [
     "packages/*",
     "apps/*"
