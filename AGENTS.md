@@ -27,7 +27,7 @@
 | Skill Layer (MCP) | `../hk-regtech-mcp/` | 9 composable tools: SEC RAG, sentiment, technical, HK compliance |
 | Tests | `packages/core/src/__tests__/` | 8-layer test pyramid (~230 tests) |
 | Pipeline Visualization | `apps/web/src/components/pipeline-dag.tsx` | Real-time DAG + execution log + cost tracking |
-| Session State | `claude-progress.txt` | Current session state, blockers, and next steps |
+| Session State | `CHANGELOG.md` | Session changes, blockers, and next steps |
 | Web Dashboard | `apps/web/` | Next.js 15 + Supabase |
 | CLI | `apps/cli/` | CLI entry point |
 
@@ -85,6 +85,83 @@ npx tsx scripts/gc-check.ts
 npm run start -- --company "NVIDIA" --mode full
 npm run start -- --company "Tencent" --mode full  # HK regulatory analysis
 ```
+
+## LangGraph Workflow (9 Nodes)
+
+```
+START → planningNode → notionContextNode → researchNode
+  → [routeAfterResearch: retry|degrade|proceed]
+  → analysisNode → [shouldSkipRisk: full|quick]
+  → riskNode → reportNode → reflexionNode
+  → [routeAfterReflexion: retry|ship]
+  → deliveryNode → finalizeNode → END
+```
+
+Conditional edges:
+- `routeAfterResearch`: retry (blocked, <2 retries) → analysis (OK) → report (degrade)
+- `shouldSkipRisk`: risk (full mode) / report (quick mode)
+- `routeAfterReflexion`: report (retry if score <7.0, <3 iterations) / delivery (pass or force ship)
+
+## Crew & Agent Map
+
+### Research Crew (3 agents, sequential)
+| Agent | Role | Tools |
+|-------|------|-------|
+| Web Researcher | Company overview, news, market position | web_search, news_search, competitor_search + MCP (notion_search, gmail_search) |
+| Data Collector | Valuation metrics, revenue, margins, balance sheet | get_stock_info, get_financial_history |
+| Synthesizer | 500-800 word intelligence brief | (none — pure reasoning) |
+
+### Analysis Crew (3 agents, parallel via Promise.all)
+| Agent | Role | Tools |
+|-------|------|-------|
+| Financial Analyst | Valuation, growth, profitability, bull/base/bear | get_stock_info, get_financial_history |
+| Market Analyst | TAM/SAM, moat, Porter's Five Forces | web_search, news_search, competitor_search |
+| Tech Analyst | Tech stack, R&D, innovation, disruption risks | web_search, news_search, competitor_search |
+
+### Risk Crew (2 agents, sequential)
+| Agent | Role | Tools |
+|-------|------|-------|
+| Risk Analyst | 5 risk dimensions | web_search, news_search, competitor_search |
+| Compliance Analyst | Regulatory (HKMA, SFC, PDPO, HKEX) | web_search + check_hk_compliance, search_hkex_filings, assess_cross_border_risk |
+
+Output: **RiskScoreSchema** (Zod) — 6 dimensions, each 1-10.
+
+### Delivery Crew (2 agents)
+| Agent | Role | Tools |
+|-------|------|-------|
+| Knowledge Manager | Save to Notion | notion_save_analysis |
+| Distribution Coordinator | Email + calendar | gmail_send_report, calendar_schedule_review, calendar_set_followup |
+
+## Tools Inventory (14)
+
+| Category | Tools | Source |
+|----------|-------|--------|
+| Search (3) | web_search, news_search, competitor_search | `searchTools.ts` (DuckDuckGo) |
+| Finance (2) | get_stock_info, get_financial_history | `financeTools.ts` (Yahoo Finance) |
+| MCP Research (2) | notion_search_past_analyses, gmail_search_newsletters | `mcpTools.ts` |
+| MCP Delivery (4) | notion_save_analysis, gmail_send_report, calendar_schedule_review, calendar_set_followup | `mcpTools.ts` |
+| MCP HK Compliance (3) | check_hk_compliance, search_hkex_filings, assess_cross_border_risk | `mcpTools.ts` |
+
+## Orchestration Skills
+
+1. **Reflexion Engine** — 5-dim evaluation → reflection + actionItems → retry if <7.0/10
+2. **Process Reward Model** — Step-level scoring at each node. Detects blocking failures.
+3. **Dynamic Planner** — Creates plan, adapts after each major node.
+4. **Cost Tracker** — Per-agent cost tracking. Budget: $0.50 / 200K tokens per report.
+
+## Testing Framework (L1-L8, 230+ tests)
+
+| Layer | Name | Tests | File(s) |
+|-------|------|-------|---------|
+| L1 | Unit | 28 | config.test.ts, nodes.helpers.test.ts, reportWriter.test.ts |
+| L2 | Node Integration | 17 | nodes.integration.test.ts |
+| L3 | Graph Integration | 8 | graph.integration.test.ts |
+| L4 | Agent Behavior | 45 | agent.behavior.test.ts |
+| L5 | LLM Evaluation | 7 | llm.eval.test.ts |
+| L6 | Golden Regression | 13 | golden.regression.test.ts |
+| L7 | Chaos/Resilience | 41 | chaos.resilience.test.ts |
+| L8 | Cost Guard | 22 | cost.guard.test.ts |
+| — | Architecture | 67 | boundaries, schemas, routing, skills tests |
 
 ## When the Agent Struggles
 
