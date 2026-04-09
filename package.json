@@ -18,7 +18,11 @@
     "watchlist:quick": "npm run -w @repo/cli watchlist:quick",
     "type-check": "turbo type-check",
     "lint": "turbo lint",
-    "validate": "turbo validate"
+    "validate": "turbo validate",
+    "worker": "npm run -w @agentledger/worker start",
+    "worker:dev": "npm run -w @agentledger/worker dev",
+    "redis:up": "docker compose up -d redis",
+    "redis:down": "docker compose down"
   },
   "devDependencies": {
     "turbo": "^2.4.0",

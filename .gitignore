@@ -15,6 +15,9 @@ ai-investment-system-testing-framework.md
 harness-engineering-action-plan.md
 harness-engineering-action-plan-cn.md
 
+# AgentLedger
+*.db
+
 # Eval results (except baseline and .gitkeep)
 packages/core/src/eval/results/*.json
 !packages/core/src/eval/results/baseline.json

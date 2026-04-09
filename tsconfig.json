@@ -13,7 +13,9 @@
   },
   "references": [
     { "path": "packages/core" },
-    { "path": "packages/db" }
+    { "path": "packages/db" },
+    { "path": "packages/agentledger-emitter" },
+    { "path": "packages/agentledger-store" }
   ],
   "include": [],
   "exclude": ["node_modules"]

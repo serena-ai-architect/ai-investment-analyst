@@ -20,6 +20,10 @@
     },
     "validate": {
       "dependsOn": ["^build"]
+    },
+    "worker": {
+      "persistent": true,
+      "cache": false
     }
   }
 }

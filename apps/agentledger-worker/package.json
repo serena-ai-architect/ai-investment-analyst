@@ -1,0 +1,24 @@
+{
+  "name": "@agentledger/worker",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "AgentLedger trace ingestion worker — consumes agent events from Redis Streams, assembles traces, stores to SQLite",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@agentledger/emitter": "*",
+    "@agentledger/store": "*",
+    "bullmq": "^5.34.0",
+    "ioredis": "^5.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
